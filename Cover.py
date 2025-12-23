@@ -84,11 +84,11 @@ with row2_col2:
 st.markdown("---")
 
 # =====================================================
-# ROW 3 (Centered RRG)
+# ROW 3 (RRG + Watchlist)
 # =====================================================
-col_left, col_center, col_right = st.columns([1, 2, 1])
+row3_col1, row3_col2 = st.columns(2)
 
-with col_left:
+with row3_col1:
     st.markdown("### 🔄 Relative Rotation Graph")
     st.write("Relative Strength Analysis for Thailand Market")
     st.write("**Features:**")
@@ -101,6 +101,21 @@ with col_left:
         label="Go to RRG Dashboard",
         icon="🔄"
     )
+
+with row3_col2:
+    st.markdown("### ⭐ Watchlist")
+    st.write("Custom Watchlist & Monitoring")
+    st.write("**Features:**")
+    st.write("- Personal stock watchlist")
+    st.write("- Quick market monitoring")
+    st.write("- Flexible symbol tracking")
+
+    st.page_link(
+        "pages/6_Watch_list.py",
+        label="Go to Watchlist",
+        icon="⭐"
+    )
+
 
 st.markdown("---")
 st.caption("📊 Thailand Market Analysis Dashboard | Created by Nampu")
