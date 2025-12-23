@@ -90,7 +90,7 @@ st.markdown("---")
 # -------------------------
 RRG_SECTOR_GID = "810916019"
 
-with st.expander("📊 Relative Rotation Graph by Sector", expanded=True):
+with st.expander("📊 Relative Rotation Graph by Industry", expanded=True):
     try:
         rrg_sector_df = load_rrg_df(SHEET_ID, RRG_SECTOR_GID)
         
@@ -307,7 +307,7 @@ st.markdown("---")
 # -------------------------
 RRG_INDUSTRY_GID = "983751635"
 
-with st.expander("📊 Relative Rotation Graph by Industry", expanded=False):
+with st.expander("📊 Relative Rotation Graph by Sector", expanded=False):
     try:
         rrg_industry_df = load_rrg_df(SHEET_ID, RRG_INDUSTRY_GID)
         
