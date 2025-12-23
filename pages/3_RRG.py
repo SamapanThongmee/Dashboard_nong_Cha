@@ -508,17 +508,52 @@ st.markdown("---")
 with st.expander("📊 Breakdown Relative Rotation Graph by Sector", expanded=False):
 
     # Sector selection and GID mapping
-    sector_gids = {
-        'Industrials': '1704777',
-        'Technology': '1208858936',
-        'Property & Construction': '1941057031',
-        'Agro & Food': '78853274',
-        'Services': '1577038098',
-        'Resources': '1570303424',
-        'Financials': '2027807125',
-        'Consumer Products': '886234418'
-    }
+    # sector_gids = {
+    #     'Industrials': '1704777',
+    #     'Technology': '1208858936',
+    #     'Property & Construction': '1941057031',
+    #     'Agro & Food': '78853274',
+    #     'Services': '1577038098',
+    #     'Resources': '1570303424',
+    #     'Financials': '2027807125',
+    #     'Consumer Products': '886234418'
+    # }
 
+    sector_gids = {
+        'Steel and Metal Products': '1475307044',
+        'Information & Communication Technology': '2140439926',
+        'Property Development': '108929325',
+        'Food & Beverage': '1173011976',
+        'Transportation & Logistics': '86837047',
+        
+        'Energy & Utilities': '807399401',
+        'Automotive': '630755209',
+        'Commerce': '670040576',
+        'Finance & Securities': '1905330539',
+        'Fashion': '900611223',
+
+        'Health Care Services': '84173182',
+        'Property Fund & REITs': '482036520',
+        'Packaging': '1907932921',
+        'Home & Office Products': '1316076253',
+        'Industrial Materials & Machinery': '1811057170',
+
+        'Media & Publishing': '801817558',
+        'Personal Products & Pharmaceuticals': '910771882',
+        'Construction Services': '573104815',
+        'Tourism & Leisure': '2131961251',
+        'Insurance': '1517004831',
+
+        'Banking': '411551146',
+        'Petrochemicals & Chemicals': '1053136329',
+        'Professional Services': '77427195',
+        'Electronic Components': '418657449',
+        'Construction Materials': '1276729230',
+
+        'Agribusiness': '1432592229',
+        'Paper & Printing Materials': '587433854',
+    }
+    
     selected_breakdown_sector = st.selectbox(
         "Select Sector to View Breakdown",
         list(sector_gids.keys()),
@@ -627,6 +662,7 @@ with st.expander("📊 Breakdown Relative Rotation Graph by Sector", expanded=Fa
         fig.add_shape(type="rect", x0=100, y0=y_min, x1=x_max, y1=100,
                       fillcolor="#fdeaa8", opacity=0.3, layer="below")
 
+       
         # -------------------------
         # Trails
         # -------------------------
@@ -682,15 +718,42 @@ with st.expander("📊 Breakdown Relative Rotation Graph by Sector", expanded=Fa
         fig.add_hline(y=100, line_color="#7f8c8d", line_width=2)
         fig.add_vline(x=100, line_color="#7f8c8d", line_width=2)
 
+        # Add these before fig.update_layout()
+        fig.add_annotation(x=104, y=104, text="Leading", showarrow=False,
+                            font=dict(size=22, color="#27ae60", family="Arial Black"))
+        fig.add_annotation(x=96, y=104, text="Improving", showarrow=False,
+                            font=dict(size=22, color="#2980b9", family="Arial Black"))
+        fig.add_annotation(x=96, y=96, text="Lagging", showarrow=False,
+                            font=dict(size=22, color="#c0392b", family="Arial Black"))
+        fig.add_annotation(x=104, y=96, text="Weakening", showarrow=False,
+                            font=dict(size=22, color="#d68910", family="Arial Black"))
+
         fig.update_layout(
-            height=700,
-            template="plotly_white",
-            title=f"{selected_breakdown_sector} – Breakdown RRG",
-            xaxis=dict(range=[x_min, x_max]),
-            yaxis=dict(range=[y_min, y_max]),
-            hovermode="closest",
-            showlegend=False
-        )
+                    height=700,
+                    template="plotly_white",
+                    plot_bgcolor='#f8f9fa',
+                    paper_bgcolor='white',
+                    title=f"{selected_breakdown_sector} – Breakdown RRG",
+                    xaxis_title="JdK RS-Ratio",
+                    yaxis_title="JdK RS-Momentum",
+                    xaxis=dict(
+                        range=[x_min, x_max],
+                        zeroline=False,
+                        gridcolor='#ecf0f1',
+                        title_font=dict(color='#2c3e50', size=14),
+                        tickfont=dict(size=12)
+                    ),
+                    yaxis=dict(
+                        range=[y_min, y_max],
+                        zeroline=False,
+                        gridcolor='#ecf0f1',
+                        title_font=dict(color='#2c3e50', size=14),
+                        tickfont=dict(size=12)
+                    ),
+                    hovermode="closest",
+                    showlegend=False,
+                    margin=dict(l=60, r=10, t=60, b=60)
+                )
 
         st.plotly_chart(fig, use_container_width=True)
 
