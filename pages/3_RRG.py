@@ -505,7 +505,7 @@ st.markdown("---")
 # -------------------------
 # Panel 3: Breakdown RRG by Sector
 # -------------------------
-with st.expander("📊 Breakdown Relative Rotation Graph", expanded=False):
+with st.expander("📊 Breakdown Relative Rotation Graph by Sector", expanded=False):
 
     # Sector selection and GID mapping
     sector_gids = {
