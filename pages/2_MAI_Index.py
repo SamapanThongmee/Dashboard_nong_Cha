@@ -1,6 +1,6 @@
-# %%writefile set_dashboard.py
+# %%writefile mai_dashboard.py
 """
-SET Index Market Breadth Dashboard
+MAI Index Market Breadth Dashboard
 """
 
 import streamlit as st
@@ -15,15 +15,15 @@ import pytz
 # -------------------------
 # Page Configuration
 # -------------------------
-st.set_page_config(page_title="SET Index Market Analysis", layout="wide")
+st.set_page_config(page_title="MAI Index Market Analysis", layout="wide")
 
 SHEET_ID = "1faOXwIk7uR51IIeAMrrRPdorRsO7iJ3PDPn-mk5vc24"
-GID = "1644473343"
+GID = "540279382"
 
 URL_PRIMARY = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}"
 URL_FALLBACK = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&gid={GID}"
 
-st.title("📈 SET Index Market Analysis")
+st.title("📈 MAI Index Market Analysis")
 
 # -------------------------
 # Helper Functions
@@ -95,8 +95,8 @@ def make_rangebreaks(dates: pd.Series, include_holidays: bool, max_holidays: int
     return rbs
 
 @st.cache_data(ttl=600, show_spinner=False)
-def load_set_data(url_primary: str, url_fallback: str) -> pd.DataFrame:
-    """Load SET data from Google Sheets"""
+def load_mai_data(url_primary: str, url_fallback: str) -> pd.DataFrame:
+    """Load MAI data from Google Sheets"""
     session = requests.Session()
     headers = {"User-Agent": "Mozilla/5.0"}
     
@@ -116,8 +116,8 @@ def load_set_data(url_primary: str, url_fallback: str) -> pd.DataFrame:
     
     raise ValueError(f"Google Sheet did not return CSV. Last error: {last_err}")
 
-def parse_set_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Parse and clean SET data"""
+def parse_mai_data(df: pd.DataFrame) -> pd.DataFrame:
+    """Parse and clean MAI data"""
     # Parse date column (Column A)
     df['Date'] = _parse_date_series(df.iloc[:, 0])
     
@@ -164,8 +164,8 @@ def parse_set_data(df: pd.DataFrame) -> pd.DataFrame:
 # Load Data
 # -------------------------
 try:
-    raw_df = load_set_data(URL_PRIMARY, URL_FALLBACK)
-    df = parse_set_data(raw_df)
+    raw_df = load_mai_data(URL_PRIMARY, URL_FALLBACK)
+    df = parse_mai_data(raw_df)
 except Exception as e:
     st.error(f"Failed to load data: {e}")
     st.stop()
@@ -223,10 +223,10 @@ st.write(f"Showing: **{start_date} → {end_date}** ({len(dff)} data points)")
 rangebreaks = make_rangebreaks(dff['Date'], include_holidays=True, max_holidays=250)
 
 # -------------------------
-# First Panel: SET Index Candlestick
+# First Panel: MAI Index Candlestick
 # -------------------------
 st.markdown("---")
-with st.expander("📈 SET Index", expanded=True):
+with st.expander("📈 MAI Index", expanded=True):
     fig1 = go.Figure(
         go.Candlestick(
             x=dff['Date'],
@@ -236,7 +236,7 @@ with st.expander("📈 SET Index", expanded=True):
             close=dff['Close'],
             increasing_line_color='#26a69a',
             decreasing_line_color='#ef5350',
-            name='SET Index'
+            name='MAI Index'
         )
     )
     
@@ -248,7 +248,7 @@ with st.expander("📈 SET Index", expanded=True):
         height=500,
         template='plotly_dark',
         xaxis_rangeslider_visible=False,
-        yaxis_title='SET Index',
+        yaxis_title='MAI Index',
         xaxis_title='Date',
         hovermode='x unified',
         margin=dict(l=10, r=10, t=40, b=10)
@@ -257,13 +257,13 @@ with st.expander("📈 SET Index", expanded=True):
     st.plotly_chart(fig1, use_container_width=True, config={'displayModeBar': True})
 
 # -------------------------
-# Second Panel: Market Breadth Analysis
+# Second Panel: Market Breadth Analysis (Only 2 tabs)
 # -------------------------
 st.markdown("---")
 with st.expander("📊 Market Breadth Analysis", expanded=True):
-    tab1, tab2 = st.tabs(["📊 Moving Averages", "📈 New Highs & New Lows"])
+    tab1, tab2 = st.tabs(["📊 Moving Averages", "📈 New Highs & Lows"])
     
-# Tab 1: Moving Averages
+    # Tab 1: Moving Averages
     with tab1:
         # Multiply by 100 to convert to percentage
         dff_pct = dff.copy()
@@ -418,7 +418,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
         
         st.plotly_chart(fig2, use_container_width=True, config={'displayModeBar': True})
     
-# Tab 2: New Highs & Lows with 4 collapsible panels
+    # Tab 2: New Highs & Lows with 4 collapsible panels
     with tab2:
         # Panel 1: NH20 & NL20
         show_nh_nl_20 = st.checkbox("📊 New High & New Low 4 Weeks", value=True, key="show_nh_nl_20")
@@ -677,4 +677,4 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
 
 # Footer
 st.markdown("---")
-st.caption(f"📊 SET Index Dashboard | {len(dff)} data points | {dff['Date'].min().date()} to {dff['Date'].max().date()}")
+st.caption(f"📊 MAI Index Dashboard | {len(dff)} data points | {dff['Date'].min().date()} to {dff['Date'].max().date()}")
