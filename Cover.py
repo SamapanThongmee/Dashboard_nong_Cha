@@ -1,13 +1,77 @@
 # Cover.py
 import streamlit as st
 
+# =====================================================
+# Authentication Configuration
+# =====================================================
+USERS = {
+    "tradaholic": "marketbreadth"
+}
+
+def check_password():
+    """Returns True if the user has correct password."""
+    
+    def password_entered():
+        """Checks whether password entered is correct."""
+        if st.session_state["username"] in USERS and \
+           st.session_state["password"] == USERS[st.session_state["username"]]:
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Don't store password
+        else:
+            st.session_state["password_correct"] = False
+
+    # Return True if password is validated
+    if st.session_state.get("password_correct", False):
+        return True
+
+    # Show login form
+    st.title("🔐 Thailand Market Analysis Dashboard")
+    st.markdown("### Please log in to continue")
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        st.text_input("Username", key="username", placeholder="Enter username")
+        st.text_input("Password", type="password", key="password", placeholder="Enter password")
+        
+        col_btn1, col_btn2 = st.columns(2)
+        with col_btn1:
+            st.button("Login", on_click=password_entered, use_container_width=True, type="primary")
+        
+        if "password_correct" in st.session_state and not st.session_state["password_correct"]:
+            st.error("😕 Username or password incorrect")
+    
+    return False
+
+# =====================================================
+# Page Configuration
+# =====================================================
 st.set_page_config(
     page_title="Thailand Market Analysis",
     page_icon="📈",
     layout="wide"
 )
 
-st.title("Thailand Market Analysis Dashboard")
+# =====================================================
+# Check Authentication
+# =====================================================
+if not check_password():
+    st.stop()
+
+# =====================================================
+# Logout Button (Top Right)
+# =====================================================
+col_title, col_logout = st.columns([5, 1])
+
+with col_title:
+    st.title("Thailand Market Analysis Dashboard")
+
+with col_logout:
+    st.write("")  # Spacer
+    if st.button("🚪 Logout", use_container_width=True):
+        st.session_state["password_correct"] = False
+        st.rerun()
+
 st.markdown("---")
 
 st.subheader("Available Dashboards (For Educational Purposes Only)")
@@ -115,7 +179,6 @@ with row3_col2:
         label="Go to Watchlist",
         icon="⭐"
     )
-
 
 st.markdown("---")
 st.caption("📊 Thailand Market Analysis Dashboard | Created by Nampu")

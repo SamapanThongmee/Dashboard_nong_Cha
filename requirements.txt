@@ -4,3 +4,4 @@ plotly
 requests
 pytz
 matplotlib
+streamlit-authenticator
