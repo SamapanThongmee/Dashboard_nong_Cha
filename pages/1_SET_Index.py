@@ -273,9 +273,9 @@ with st.expander("📈 SET Index", expanded=True):
 # -------------------------
 st.markdown("---")
 with st.expander("📊 Market Breadth Analysis", expanded=True):
-    tab1, tab2, tab3 = st.tabs(["📊 Moving Averages", "📈 New Highs & Lows", "📉 Modified New High & New Lows"])
+    tab1, tab2, tab3 = st.tabs(["📊 Exponential Moving Averages", "📈 New Highs & Lows", "📉 Modified New High & New Lows"])
     
-    # Tab 1: Moving Averages
+# Tab 1: Moving Averages
     with tab1:
         # Multiply by 100 to convert to percentage
         dff_pct = dff.copy()
@@ -290,126 +290,63 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
         dff_pct['Below_EMA100'] = dff['Below_EMA100'] * 100
         dff_pct['Below_EMA200'] = dff['Below_EMA200'] * 100
         
-        fig2 = go.Figure()
+        # Panel 1: Above Moving Averages
+        # st.subheader("📈 Percentage of Members Above Exponential Moving Averages")
         
-        # Above EMA lines (green shades) - First line in legend
+        fig_above = go.Figure()
+        
+        # Above EMA lines (green shades)
         if dff_pct['Above_EMA10'].notna().any():
-            fig2.add_trace(go.Scatter(
+            fig_above.add_trace(go.Scatter(
                 x=dff_pct['Date'],
                 y=dff_pct['Above_EMA10'],
                 name='Percentage of Members with Px > 10 Day Exponential Moving Average',
                 line=dict(width=1, color='#00ff00'),
-                mode='lines',
-                legendgroup='above',
-                legendrank=1
+                mode='lines'
             ))
         
         if dff_pct['Above_EMA20'].notna().any():
-            fig2.add_trace(go.Scatter(
+            fig_above.add_trace(go.Scatter(
                 x=dff_pct['Date'],
                 y=dff_pct['Above_EMA20'],
                 name='Percentage of Members with Px > 20 Day Exponential Moving Average',
                 line=dict(width=1.5, color='#26a69a'),
-                mode='lines',
-                legendgroup='above',
-                legendrank=2
+                mode='lines'
             ))
         
         if dff_pct['Above_EMA50'].notna().any():
-            fig2.add_trace(go.Scatter(
+            fig_above.add_trace(go.Scatter(
                 x=dff_pct['Date'],
                 y=dff_pct['Above_EMA50'],
                 name='Percentage of Members with Px > 50 Day Exponential Moving Average',
                 line=dict(width=2, color='#2ecc71'),
-                mode='lines',
-                legendgroup='above',
-                legendrank=3
+                mode='lines'
             ))
         
         if dff_pct['Above_EMA100'].notna().any():
-            fig2.add_trace(go.Scatter(
+            fig_above.add_trace(go.Scatter(
                 x=dff_pct['Date'],
                 y=dff_pct['Above_EMA100'],
                 name='Percentage of Members with Px > 100 Day Exponential Moving Average',
                 line=dict(width=2.5, color='#27ae60'),
-                mode='lines',
-                legendgroup='above',
-                legendrank=4
+                mode='lines'
             ))
         
         if dff_pct['Above_EMA200'].notna().any():
-            fig2.add_trace(go.Scatter(
+            fig_above.add_trace(go.Scatter(
                 x=dff_pct['Date'],
                 y=dff_pct['Above_EMA200'],
                 name='Percentage of Members with Px > 200 Day Exponential Moving Average',
                 line=dict(width=3, color='#1e8449'),
-                mode='lines',
-                legendgroup='above',
-                legendrank=5
-            ))
-        
-        # Below EMA lines (red shades) - Second line in legend
-        if dff_pct['Below_EMA10'].notna().any():
-            fig2.add_trace(go.Scatter(
-                x=dff_pct['Date'],
-                y=dff_pct['Below_EMA10'],
-                name='Percentage of Members with Px < 10 Day Exponential Moving Average',
-                line=dict(width=1, color='#ff6b6b', dash='solid'),
-                mode='lines',
-                legendgroup='below',
-                legendrank=6
-            ))
-        
-        if dff_pct['Below_EMA20'].notna().any():
-            fig2.add_trace(go.Scatter(
-                x=dff_pct['Date'],
-                y=dff_pct['Below_EMA20'],
-                name='Percentage of Members with Px < 20 Day Exponential Moving Average',
-                line=dict(width=1.5, color='#ef5350', dash='solid'),
-                mode='lines',
-                legendgroup='below',
-                legendrank=7
-            ))
-        
-        if dff_pct['Below_EMA50'].notna().any():
-            fig2.add_trace(go.Scatter(
-                x=dff_pct['Date'],
-                y=dff_pct['Below_EMA50'],
-                name='Percentage of Members with Px < 50 Day Exponential Moving Average',
-                line=dict(width=2, color='#e74c3c', dash='solid'),
-                mode='lines',
-                legendgroup='below',
-                legendrank=8
-            ))
-        
-        if dff_pct['Below_EMA100'].notna().any():
-            fig2.add_trace(go.Scatter(
-                x=dff_pct['Date'],
-                y=dff_pct['Below_EMA100'],
-                name='Percentage of Members with Px < 100 Day Exponential Moving Average',
-                line=dict(width=2.5, color='#c0392b', dash='solid'),
-                mode='lines',
-                legendgroup='below',
-                legendrank=9
-            ))
-        
-        if dff_pct['Below_EMA200'].notna().any():
-            fig2.add_trace(go.Scatter(
-                x=dff_pct['Date'],
-                y=dff_pct['Below_EMA200'],
-                name='Percentage of Members with Px < 200 Day Exponential Moving Average',
-                line=dict(width=3, color='#a93226', dash='solid'),
-                mode='lines',
-                legendgroup='below',
-                legendrank=10
+                mode='lines'
             ))
         
         # Apply rangebreaks to remove gaps
         if rangebreaks:
-            fig2.update_xaxes(rangebreaks=rangebreaks)
+            fig_above.update_xaxes(rangebreaks=rangebreaks)
         
-        fig2.update_layout(
-            height=550,
+        fig_above.update_layout(
+            height=400,
             template='plotly_dark',
             hovermode='x unified',
             legend=dict(
@@ -417,18 +354,95 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
                 yanchor='bottom',
                 y=1.02,
                 xanchor='center',
-                x=0.5,
-                traceorder='normal'
+                x=0.5
             ),
             yaxis=dict(
-                title='Moving Averages',
+                title='Above Exponential Moving Averages',
                 range=[0, 100]
             ),
             xaxis_title='Date',
-            margin=dict(l=10, r=10, t=80, b=10)
+            margin=dict(l=10, r=10, t=60, b=10)
         )
         
-        st.plotly_chart(fig2, use_container_width=True, config={'displayModeBar': True})
+        st.plotly_chart(fig_above, use_container_width=True, config={'displayModeBar': True})
+        
+        st.markdown("---")
+        
+        # Panel 2: Below Moving Averages
+        # st.subheader("📉 Percentage of Members Below Exponential Moving Averages")
+        
+        fig_below = go.Figure()
+        
+        # Below EMA lines (red shades)
+        if dff_pct['Below_EMA10'].notna().any():
+            fig_below.add_trace(go.Scatter(
+                x=dff_pct['Date'],
+                y=dff_pct['Below_EMA10'],
+                name='Percentage of Members with Px < 10 Day Exponential Moving Average',
+                line=dict(width=1, color='#ff6b6b'),
+                mode='lines'
+            ))
+        
+        if dff_pct['Below_EMA20'].notna().any():
+            fig_below.add_trace(go.Scatter(
+                x=dff_pct['Date'],
+                y=dff_pct['Below_EMA20'],
+                name='Percentage of Members with Px < 20 Day Exponential Moving Average',
+                line=dict(width=1.5, color='#ef5350'),
+                mode='lines'
+            ))
+        
+        if dff_pct['Below_EMA50'].notna().any():
+            fig_below.add_trace(go.Scatter(
+                x=dff_pct['Date'],
+                y=dff_pct['Below_EMA50'],
+                name='Percentage of Members with Px < 50 Day Exponential Moving Average',
+                line=dict(width=2, color='#e74c3c'),
+                mode='lines'
+            ))
+        
+        if dff_pct['Below_EMA100'].notna().any():
+            fig_below.add_trace(go.Scatter(
+                x=dff_pct['Date'],
+                y=dff_pct['Below_EMA100'],
+                name='Percentage of Members with Px < 100 Day Exponential Moving Average',
+                line=dict(width=2.5, color='#c0392b'),
+                mode='lines'
+            ))
+        
+        if dff_pct['Below_EMA200'].notna().any():
+            fig_below.add_trace(go.Scatter(
+                x=dff_pct['Date'],
+                y=dff_pct['Below_EMA200'],
+                name='Percentage of Members with Px < 200 Day Exponential Moving Average',
+                line=dict(width=3, color='#a93226'),
+                mode='lines'
+            ))
+        
+        # Apply rangebreaks to remove gaps
+        if rangebreaks:
+            fig_below.update_xaxes(rangebreaks=rangebreaks)
+        
+        fig_below.update_layout(
+            height=400,
+            template='plotly_dark',
+            hovermode='x unified',
+            legend=dict(
+                orientation='h',
+                yanchor='bottom',
+                y=1.02,
+                xanchor='center',
+                x=0.5
+            ),
+            yaxis=dict(
+                title='Below Exponential Moving Averages',
+                range=[0, 100]
+            ),
+            xaxis_title='Date',
+            margin=dict(l=10, r=10, t=60, b=10)
+        )
+        
+        st.plotly_chart(fig_below, use_container_width=True, config={'displayModeBar': True})
     
     # Tab 2: New Highs & Lows with 4 collapsible panels
     with tab2:

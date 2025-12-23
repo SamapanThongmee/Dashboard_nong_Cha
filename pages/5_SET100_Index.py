@@ -196,86 +196,117 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
     # TAB 1: Moving Averages (Above + Below)
     # =====================================================
     with tab1:
-        dff_pct = dff.copy()
+            dff_pct = dff.copy()
 
-        for c in [
-            'Above_EMA10','Above_EMA20','Above_EMA50','Above_EMA100','Above_EMA200',
-            'Below_EMA10','Below_EMA20','Below_EMA50','Below_EMA100','Below_EMA200'
-        ]:
-            dff_pct[c] = dff_pct[c] * 100
+            for c in [
+                'Above_EMA10','Above_EMA20','Above_EMA50','Above_EMA100','Above_EMA200',
+                'Below_EMA10','Below_EMA20','Below_EMA50','Below_EMA100','Below_EMA200'
+            ]:
+                dff_pct[c] = dff_pct[c] * 100
 
-        fig = go.Figure()
+            # ---------- TOP PANEL: Above Moving Averages ----------
+            # st.subheader("📈 Number of Members Above Moving Averages")
+            
+            fig_above = go.Figure()
 
-        # ---------- Above EMA (Green) ----------
-        fig.add_trace(go.Scatter(
-            x=dff_pct['Date'], y=dff_pct['Above_EMA10']/100,
-            name='Number of Members with Px > 10 Day EMA',
-            line=dict(width=1, color='#00ff00')
-        ))
-        fig.add_trace(go.Scatter(
-            x=dff_pct['Date'], y=dff_pct['Above_EMA20']/100,
-            name='Number of Members with Px > 20 Day EMA',
-            line=dict(width=1.5, color='#26a69a')
-        ))
-        fig.add_trace(go.Scatter(
-            x=dff_pct['Date'], y=dff_pct['Above_EMA50']/100,
-            name='Number of Members with Px > 50 Day EMA',
-            line=dict(width=2, color='#2ecc71')
-        ))
-        fig.add_trace(go.Scatter(
-            x=dff_pct['Date'], y=dff_pct['Above_EMA100']/100,
-            name='Number of Members with Px > 100 Day EMA',
-            line=dict(width=2.5, color='#27ae60')
-        ))
-        fig.add_trace(go.Scatter(
-            x=dff_pct['Date'], y=dff_pct['Above_EMA200']/100,
-            name='Number of Members with Px > 200 Day EMA',
-            line=dict(width=3, color='#1e8449')
-        ))
+            # Above EMA (Green)
+            fig_above.add_trace(go.Scatter(
+                x=dff_pct['Date'], y=dff_pct['Above_EMA10']/100,
+                name='Number of Members with Px > 10 Day EMA',
+                line=dict(width=1, color='#00ff00')
+            ))
+            fig_above.add_trace(go.Scatter(
+                x=dff_pct['Date'], y=dff_pct['Above_EMA20']/100,
+                name='Number of Members with Px > 20 Day EMA',
+                line=dict(width=1.5, color='#26a69a')
+            ))
+            fig_above.add_trace(go.Scatter(
+                x=dff_pct['Date'], y=dff_pct['Above_EMA50']/100,
+                name='Number of Members with Px > 50 Day EMA',
+                line=dict(width=2, color='#2ecc71')
+            ))
+            fig_above.add_trace(go.Scatter(
+                x=dff_pct['Date'], y=dff_pct['Above_EMA100']/100,
+                name='Number of Members with Px > 100 Day EMA',
+                line=dict(width=2.5, color='#27ae60')
+            ))
+            fig_above.add_trace(go.Scatter(
+                x=dff_pct['Date'], y=dff_pct['Above_EMA200']/100,
+                name='Number of Members with Px > 200 Day EMA',
+                line=dict(width=3, color='#1e8449')
+            ))
 
-        # ---------- Below EMA (Red) ----------
-        fig.add_trace(go.Scatter(
-            x=dff_pct['Date'], y=dff_pct['Below_EMA10']/100,
-            name='Number of Members with Px < 10 Day EMA',
-            line=dict(width=1, color='#ff6b6b')
-        ))
-        fig.add_trace(go.Scatter(
-            x=dff_pct['Date'], y=dff_pct['Below_EMA20']/100,
-            name='Number of Members with Px < 20 Day EMA',
-            line=dict(width=1.5, color='#ef5350')
-        ))
-        fig.add_trace(go.Scatter(
-            x=dff_pct['Date'], y=dff_pct['Below_EMA50']/100,
-            name='Number of Members with Px < 50 Day EMA',
-            line=dict(width=2, color='#e74c3c')
-        ))
-        fig.add_trace(go.Scatter(
-            x=dff_pct['Date'], y=dff_pct['Below_EMA100']/100,
-            name='Number of Members with Px < 100 Day EMA',
-            line=dict(width=2.5, color='#c0392b')
-        ))
-        fig.add_trace(go.Scatter(
-            x=dff_pct['Date'], y=dff_pct['Below_EMA200']/100,
-            name='Number of Members with Px < 200 Day EMA',
-            line=dict(width=3, color='#a93226')
-        ))
+            if rangebreaks:
+                fig_above.update_xaxes(rangebreaks=rangebreaks)
 
-        if rangebreaks:
-            fig.update_xaxes(rangebreaks=rangebreaks)
-
-        fig.update_layout(
-            height=550,
-            template='plotly_dark',
-            hovermode='x unified',
-            yaxis=dict(range=[0, 100], title='Number of Members'),
-            legend=dict(
-                orientation='h',
-                yanchor='bottom', y=1.02,
-                xanchor='center', x=0.5
+            fig_above.update_layout(
+                height=400,
+                template='plotly_dark',
+                hovermode='x unified',
+                yaxis=dict(range=[0, 100], title='Number of Members'),
+                xaxis_title='Date',
+                legend=dict(
+                    orientation='h',
+                    yanchor='bottom', y=1.02,
+                    xanchor='center', x=0.5
+                ),
+                margin=dict(l=10, r=10, t=60, b=10)
             )
-        )
 
-        st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig_above, use_container_width=True, config={'displayModeBar': True})
+            
+            st.markdown("---")
+
+            # ---------- BOTTOM PANEL: Below Moving Averages ----------
+            # st.subheader("📉 Number of Members Below Moving Averages")
+            
+            fig_below = go.Figure()
+
+            # Below EMA (Red)
+            fig_below.add_trace(go.Scatter(
+                x=dff_pct['Date'], y=dff_pct['Below_EMA10']/100,
+                name='Number of Members with Px < 10 Day EMA',
+                line=dict(width=1, color='#ff6b6b')
+            ))
+            fig_below.add_trace(go.Scatter(
+                x=dff_pct['Date'], y=dff_pct['Below_EMA20']/100,
+                name='Number of Members with Px < 20 Day EMA',
+                line=dict(width=1.5, color='#ef5350')
+            ))
+            fig_below.add_trace(go.Scatter(
+                x=dff_pct['Date'], y=dff_pct['Below_EMA50']/100,
+                name='Number of Members with Px < 50 Day EMA',
+                line=dict(width=2, color='#e74c3c')
+            ))
+            fig_below.add_trace(go.Scatter(
+                x=dff_pct['Date'], y=dff_pct['Below_EMA100']/100,
+                name='Number of Members with Px < 100 Day EMA',
+                line=dict(width=2.5, color='#c0392b')
+            ))
+            fig_below.add_trace(go.Scatter(
+                x=dff_pct['Date'], y=dff_pct['Below_EMA200']/100,
+                name='Number of Members with Px < 200 Day EMA',
+                line=dict(width=3, color='#a93226')
+            ))
+
+            if rangebreaks:
+                fig_below.update_xaxes(rangebreaks=rangebreaks)
+
+            fig_below.update_layout(
+                height=400,
+                template='plotly_dark',
+                hovermode='x unified',
+                yaxis=dict(range=[0, 100], title='Number of Members'),
+                xaxis_title='Date',
+                legend=dict(
+                    orientation='h',
+                    yanchor='bottom', y=1.02,
+                    xanchor='center', x=0.5
+                ),
+                margin=dict(l=10, r=10, t=60, b=10)
+            )
+
+            st.plotly_chart(fig_below, use_container_width=True, config={'displayModeBar': True})
 
     # =====================================================
     # TAB 2: New Highs & Lows (4 Panels)
