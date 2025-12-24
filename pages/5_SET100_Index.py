@@ -124,13 +124,18 @@ def parse_set100_data(df: pd.DataFrame) -> pd.DataFrame:
     df['NL65']  = _clean_numeric_series(df.iloc[:, 20])
     df['NL130'] = _clean_numeric_series(df.iloc[:, 21])
     df['NL260'] = _clean_numeric_series(df.iloc[:, 22])
+    
+    # Double Moving Averages (Column AK-AL) - columns 36-37
+    df['Percentage_Above_Both'] = _clean_numeric_series(df.iloc[:, 36]) if df.shape[1] > 36 else pd.Series([pd.NA] * len(df))
+    df['Percentage_Below_Both'] = _clean_numeric_series(df.iloc[:, 37]) if df.shape[1] > 37 else pd.Series([pd.NA] * len(df))
 
     keep = [
         'Date', 'Open', 'High', 'Low', 'Close',
         'Above_EMA10','Above_EMA20','Above_EMA50','Above_EMA100','Above_EMA200',
         'Below_EMA10','Below_EMA20','Below_EMA50','Below_EMA100','Below_EMA200',
         'NH20','NH65','NH130','NH260',
-        'NL20','NL65','NL130','NL260'
+        'NL20','NL65','NL130','NL260',
+        'Percentage_Above_Both', 'Percentage_Below_Both'
     ]
 
     return df[keep].dropna(subset=['Date']).sort_values('Date')
@@ -200,7 +205,11 @@ with st.expander("📈 SET100 Index", expanded=True):
 st.markdown("---")
 with st.expander("📊 Market Breadth Analysis", expanded=True):
 
-    tab1, tab2 = st.tabs(["📊 Moving Averages", "📈 New Highs & Lows"])
+    tab1, tab2, tab3 = st.tabs([
+        "📊 Moving Averages", 
+        "📈 New Highs & Lows",
+        "📊 Double Moving Averages"
+    ])
 
     # =====================================================
     # TAB 1: Moving Averages (Above + Below)
@@ -215,8 +224,6 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
                 dff_pct[c] = dff_pct[c] * 100
 
             # ---------- TOP PANEL: Above Moving Averages ----------
-            # st.subheader("📈 Number of Members Above Moving Averages")
-            
             fig_above = go.Figure()
 
             # Above EMA (Green)
@@ -268,8 +275,6 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
             st.markdown("---")
 
             # ---------- BOTTOM PANEL: Below Moving Averages ----------
-            # st.subheader("📉 Number of Members Below Moving Averages")
-            
             fig_below = go.Figure()
 
             # Below EMA (Red)
@@ -323,8 +328,8 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
     # =====================================================
     with tab2:
 
-        # Panel 3: NH300 & NL130
-        fig_nh_nl_4w = st.checkbox("📊 New High & New Low 4 Weeks", value=False, key="fig_nh_nl_4w")
+        # Panel 1: NH20 & NL20
+        fig_nh_nl_4w = st.checkbox("📊 New High & New Low 4 Weeks", value=True, key="fig_nh_nl_4w")
         if fig_nh_nl_4w:
             fig_nh_nl_4w = go.Figure()
 
@@ -377,9 +382,10 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
                 )
             )
             st.plotly_chart(fig_nh_nl_4w, use_container_width=True, config={'displayModeBar': True})
+            st.markdown("---")
 
-        # Panel 3: NH300 & NL130
-        fig_nh_nl_13w = st.checkbox("📊 New High & New Low 13 Weeks", value=False, key="fig_nh_nl_13w")
+        # Panel 2: NH65 & NL65
+        fig_nh_nl_13w = st.checkbox("📊 New High & New Low 13 Weeks", value=True, key="fig_nh_nl_13w")
         if fig_nh_nl_13w:
             fig_nh_nl_13w = go.Figure()
 
@@ -432,9 +438,10 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
                 )
             )
             st.plotly_chart(fig_nh_nl_13w, use_container_width=True, config={'displayModeBar': True})
+            st.markdown("---")
 
-        # Panel 3: NH260 & NL260
-        fig_nh_nl_26w = st.checkbox("📊 New High & New Low 26 Weeks", value=False, key="fig_nh_nl_26w")
+        # Panel 3: NH130 & NL130
+        fig_nh_nl_26w = st.checkbox("📊 New High & New Low 26 Weeks", value=True, key="fig_nh_nl_26w")
         if fig_nh_nl_26w:
             fig_nh_nl_26w = go.Figure()
 
@@ -487,10 +494,10 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
                 )
             )
             st.plotly_chart(fig_nh_nl_26w, use_container_width=True, config={'displayModeBar': True})
+            st.markdown("---")
 
-
-        # Panel 3: NH260 & NL260
-        fig_nh_nl_52w = st.checkbox("📊 New High & New Low 52 Weeks", value=False, key="fig_nh_nl_52w")
+        # Panel 4: NH260 & NL260
+        fig_nh_nl_52w = st.checkbox("📊 New High & New Low 52 Weeks", value=True, key="fig_nh_nl_52w")
         if fig_nh_nl_52w:
             fig_nh_nl_52w = go.Figure()
 
@@ -543,6 +550,54 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
                 )
             )
             st.plotly_chart(fig_nh_nl_52w, use_container_width=True, config={'displayModeBar': True})
+    
+    # =====================================================
+    # TAB 3: Double Moving Averages
+    # =====================================================
+    with tab3:
+        fig_dma = go.Figure()
+        
+        # Number Above Both (Green line)
+        if dff['Percentage_Above_Both'].notna().any():
+            fig_dma.add_trace(go.Scatter(
+                x=dff['Date'],
+                y=dff['Percentage_Above_Both'],
+                name='Number of Members Above 50-DMA and 200-DMA',
+                line=dict(width=2, color='#00ff00'),
+                mode='lines',
+                fill='tozeroy',
+                fillcolor='rgba(0, 255, 0, 0.2)'
+            ))
+        
+        # Number Below Both (Red line)
+        if dff['Percentage_Below_Both'].notna().any():
+            fig_dma.add_trace(go.Scatter(
+                x=dff['Date'],
+                y=dff['Percentage_Below_Both'],
+                name='Number of Members Below 50-DMA and 200-DMA',
+                line=dict(width=2, color='#ff0000'),
+                mode='lines',
+                fill='tozeroy',
+                fillcolor='rgba(255, 0, 0, 0.2)'
+            ))
+        
+        if rangebreaks:
+            fig_dma.update_xaxes(rangebreaks=rangebreaks)
+        
+        fig_dma.update_layout(
+            height=450,
+            template='plotly_dark',
+            hovermode='x unified',
+            legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+            yaxis=dict(
+                title='Double Moving Averages',
+                range=[0, 100]
+            ),
+            xaxis_title='Date',
+            margin=dict(l=10, r=10, t=60, b=10)
+        )
+        
+        st.plotly_chart(fig_dma, use_container_width=True, config={'displayModeBar': True})
             
 # Footer
 st.markdown("---")

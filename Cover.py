@@ -86,10 +86,12 @@ with row1_col1:
     st.write("Stock Exchange of Thailand (SET)")
     st.write("**Features:**")
     st.write("- SET Index Candlestick Chart")
-    st.write("- Market Breadth: Moving Averages")
-    st.write("- Market Breadth: New Highs & Lows")
-    st.write("- Market Breadth: Modified NH/NL")
-
+    st.write("- Market Breadth: Exponential Moving Averages")
+    st.write("- Market Breadth: New Highs & New Lows")
+    st.write("- Market Breadth: Modified New Highs & Lows")
+    st.write("- Market Breadth: Double Exponential Moving Averages")
+    st.write("- Market Breadth: Different New Highs & New Lows")
+    
     st.page_link(
         "pages/1_SET_Index.py",
         label="Go to SET Index Dashboard",
@@ -101,8 +103,11 @@ with row1_col2:
     st.write("Market for Alternative Investment (MAI)")
     st.write("**Features:**")
     st.write("- MAI Index Candlestick Chart")
-    st.write("- Market Breadth: Moving Averages")
-    st.write("- Market Breadth: New Highs & Lows")
+    st.write("- Market Breadth: Exponential Moving Averages")
+    st.write("- Market Breadth: New Highs & New Lows")
+    st.write("- Market Breadth: Modified New Highs & Lows")
+    st.write("- Market Breadth: Double Exponential Moving Averages")
+    st.write("- Market Breadth: Different New Highs & New Lows")
 
     st.page_link(
         "pages/2_MAI_Index.py",
@@ -122,9 +127,10 @@ with row2_col1:
     st.write("Stock Exchange of Thailand (SET50)")
     st.write("**Features:**")
     st.write("- SET50 Index Candlestick Chart")
-    st.write("- Market Breadth: Moving Averages")
+    st.write("- Market Breadth: Exponential Moving Averages")
     st.write("- Market Breadth: New Highs & Lows")
-
+    st.write("- Market Breadth: Double Exponential Moving Averages")
+    
     st.page_link(
         "pages/4_SET50_Index.py",
         label="Go to SET50 Index Dashboard",
@@ -136,9 +142,10 @@ with row2_col2:
     st.write("Stock Exchange of Thailand (SET100)")
     st.write("**Features:**")
     st.write("- SET100 Index Candlestick Chart")
-    st.write("- Market Breadth: Moving Averages")
+    st.write("- Market Breadth: Exponential Moving Averages")
     st.write("- Market Breadth: New Highs & Lows")
-
+    st.write("- Market Breadth: Double Exponential Moving Averages")
+    
     st.page_link(
         "pages/5_SET100_Index.py",
         label="Go to SET100 Index Dashboard",
