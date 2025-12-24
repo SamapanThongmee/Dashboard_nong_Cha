@@ -181,7 +181,7 @@ with st.expander("📈 SET100 Index", expanded=True):
         high=dff['High'],
         low=dff['Low'],
         close=dff['Close'],
-        increasing_line_color='#26a69a',
+        increasing_line_color='#27ae60',
         decreasing_line_color='#ef5350'
     ))
 

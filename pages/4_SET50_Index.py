@@ -175,22 +175,15 @@ rangebreaks = make_rangebreaks(dff['Date'])
 # -------------------------
 st.markdown("---")
 with st.expander("📈 SET50 Index", expanded=True):
-    fig1 = go.Figure(
-        go.Candlestick(
-            x=dff['Date'],
-            open=dff['Open'],
-            high=dff['High'],
-            low=dff['Low'],
-            close=dff['Close'],
-            increasing_line_color='#27ae60',
-            increasing_line_width=0,  # Remove border for increasing candles
-            increasing_fillcolor='#27ae60',
-            decreasing_line_color='#ef5350',
-            decreasing_line_width=0,  # Remove border for decreasing candles
-            decreasing_fillcolor='#ef5350',
-            name='SET Index'
-        )
-    )
+    fig = go.Figure(go.Candlestick(
+        x=dff['Date'],
+        open=dff['Open'],
+        high=dff['High'],
+        low=dff['Low'],
+        close=dff['Close'],
+        increasing_line_color='#27ae60',
+        decreasing_line_color='#ef5350'
+    ))
 
     fig.update_xaxes(rangebreaks=rangebreaks)
     fig.update_layout(
