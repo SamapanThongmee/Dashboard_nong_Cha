@@ -149,7 +149,7 @@ def parse_set_data(df: pd.DataFrame) -> pd.DataFrame:
     df['Below_EMA100'] = _clean_numeric_series(df.iloc[:, 13])
     df['Below_EMA200'] = _clean_numeric_series(df.iloc[:, 14])
     
-    # New High/Low columns (P-W)
+    # New High/Low columns (P-W) - columns 15-22
     df['NH20'] = _clean_numeric_series(df.iloc[:, 15])
     df['NH65'] = _clean_numeric_series(df.iloc[:, 16])
     df['NH130'] = _clean_numeric_series(df.iloc[:, 17])
@@ -169,6 +169,26 @@ def parse_set_data(df: pd.DataFrame) -> pd.DataFrame:
     df['Diff_Short_Long_NHNL'] = _clean_numeric_series(df.iloc[:, 29]) if df.shape[1] > 29 else pd.Series([pd.NA] * len(df))
     df['Diff_Short_Long_NHNL_MA60'] = _clean_numeric_series(df.iloc[:, 30]) if df.shape[1] > 30 else pd.Series([pd.NA] * len(df))
     
+    # Additional columns for new tabs
+    # Column AF-AR (columns 31-43)
+    df['NH10'] = _clean_numeric_series(df.iloc[:, 31]) if df.shape[1] > 31 else pd.Series([pd.NA] * len(df))
+    df['NL10'] = _clean_numeric_series(df.iloc[:, 32]) if df.shape[1] > 32 else pd.Series([pd.NA] * len(df))
+    df['Diff_NHNL10'] = _clean_numeric_series(df.iloc[:, 33]) if df.shape[1] > 33 else pd.Series([pd.NA] * len(df))
+    df['Diff_NHNL20'] = _clean_numeric_series(df.iloc[:, 34]) if df.shape[1] > 34 else pd.Series([pd.NA] * len(df))
+    df['NH50'] = _clean_numeric_series(df.iloc[:, 35]) if df.shape[1] > 35 else pd.Series([pd.NA] * len(df))
+    df['NL50'] = _clean_numeric_series(df.iloc[:, 36]) if df.shape[1] > 36 else pd.Series([pd.NA] * len(df))
+    df['Diff_NHNL50'] = _clean_numeric_series(df.iloc[:, 37]) if df.shape[1] > 37 else pd.Series([pd.NA] * len(df))
+    df['NH100'] = _clean_numeric_series(df.iloc[:, 38]) if df.shape[1] > 38 else pd.Series([pd.NA] * len(df))
+    df['NL100'] = _clean_numeric_series(df.iloc[:, 39]) if df.shape[1] > 39 else pd.Series([pd.NA] * len(df))
+    df['Diff_NHNL100'] = _clean_numeric_series(df.iloc[:, 40]) if df.shape[1] > 40 else pd.Series([pd.NA] * len(df))
+    df['NH200'] = _clean_numeric_series(df.iloc[:, 41]) if df.shape[1] > 41 else pd.Series([pd.NA] * len(df))
+    df['NL200'] = _clean_numeric_series(df.iloc[:, 42]) if df.shape[1] > 42 else pd.Series([pd.NA] * len(df))
+    df['Diff_NHNL200'] = _clean_numeric_series(df.iloc[:, 43]) if df.shape[1] > 43 else pd.Series([pd.NA] * len(df))
+    
+    # Double Moving Averages (Column AS-AT) - columns 44-45
+    df['Percentage_Above_Both'] = _clean_numeric_series(df.iloc[:, 44]) if df.shape[1] > 44 else pd.Series([pd.NA] * len(df))
+    df['Percentage_Below_Both'] = _clean_numeric_series(df.iloc[:, 45]) if df.shape[1] > 45 else pd.Series([pd.NA] * len(df))
+    
     # Keep only processed columns
     processed_cols = ['Date', 'Open', 'High', 'Low', 'Close',
                       'Above_EMA10', 'Above_EMA20', 'Above_EMA50', 'Above_EMA100', 'Above_EMA200',
@@ -176,7 +196,12 @@ def parse_set_data(df: pd.DataFrame) -> pd.DataFrame:
                       'NH20', 'NH65', 'NH130', 'NH260',
                       'NL20', 'NL65', 'NL130', 'NL260',
                       'Ratio_NHNL20', 'Ratio_NHNL20_MA20', 'Ratio_NHNL50', 'Ratio_NHNL50_MA50',
-                      'Ratio_NHNL200', 'Ratio_NHNL200_MA50', 'Diff_Short_Long_NHNL', 'Diff_Short_Long_NHNL_MA60']
+                      'Ratio_NHNL200', 'Ratio_NHNL200_MA50', 'Diff_Short_Long_NHNL', 'Diff_Short_Long_NHNL_MA60',
+                      'NH10', 'NL10', 'Diff_NHNL10', 'Diff_NHNL20',
+                      'NH50', 'NL50', 'Diff_NHNL50',
+                      'NH100', 'NL100', 'Diff_NHNL100',
+                      'NH200', 'NL200', 'Diff_NHNL200',
+                      'Percentage_Above_Both', 'Percentage_Below_Both']
     
     df = df[processed_cols].dropna(subset=['Date']).sort_values('Date')
     
@@ -283,9 +308,15 @@ with st.expander("📈 SET Index", expanded=True):
 # -------------------------
 st.markdown("---")
 with st.expander("📊 Market Breadth Analysis", expanded=True):
-    tab1, tab2, tab3 = st.tabs(["📊 Exponential Moving Averages", "📈 New Highs & Lows", "📉 Modified New High & New Lows"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "📊 Exponential Moving Averages", 
+        "📈 New Highs & Lows", 
+        "📉 Modified New High & New Lows",
+        "📊 Double Moving Averages",
+        "📈 Different New Highs and New Lows"
+    ])
     
-# Tab 1: Moving Averages
+    # Tab 1: Moving Averages
     with tab1:
         # Multiply by 100 to convert to percentage
         dff_pct = dff.copy()
@@ -299,9 +330,6 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
         dff_pct['Below_EMA50'] = dff['Below_EMA50'] * 100
         dff_pct['Below_EMA100'] = dff['Below_EMA100'] * 100
         dff_pct['Below_EMA200'] = dff['Below_EMA200'] * 100
-        
-        # Panel 1: Above Moving Averages
-        # st.subheader("📈 Percentage of Members Above Exponential Moving Averages")
         
         fig_above = go.Figure()
         
@@ -351,7 +379,6 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
                 mode='lines'
             ))
         
-        # Apply rangebreaks to remove gaps
         if rangebreaks:
             fig_above.update_xaxes(rangebreaks=rangebreaks)
         
@@ -377,9 +404,6 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
         st.plotly_chart(fig_above, use_container_width=True, config={'displayModeBar': True})
         
         st.markdown("---")
-        
-        # Panel 2: Below Moving Averages
-        # st.subheader("📉 Percentage of Members Below Exponential Moving Averages")
         
         fig_below = go.Figure()
         
@@ -429,7 +453,6 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
                 mode='lines'
             ))
         
-        # Apply rangebreaks to remove gaps
         if rangebreaks:
             fig_below.update_xaxes(rangebreaks=rangebreaks)
         
@@ -711,11 +734,9 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
             
             st.plotly_chart(fig_nh_nl_260, use_container_width=True, config={'displayModeBar': True})
     
-# Tab 3: Modified New High & New Lows
+    # Tab 3: Modified New High & New Lows
     with tab3:
-# Panel 1: Ratio New Highs and New Lows
-        # st.subheader("📊 Ratio New Highs and New Lows")
-        
+        # Panel 1: Ratio New Highs and New Lows
         fig_ratio = go.Figure()
         
         # Ratio_NHNL20 - solid line (multiply by 100 for percentage)
@@ -799,8 +820,6 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
         st.markdown("---")
         
         # Panel 2: Diff. Short-Long New Highs and New Lows
-        # st.subheader("📉 Diff. Short-Long New Highs and New Lows")
-        
         fig_diff = go.Figure()
         
         # DIFF_SHORT_LONG_NHNL - solid line
@@ -837,6 +856,323 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
         )
         
         st.plotly_chart(fig_diff, use_container_width=True, config={'displayModeBar': True})
+    
+    # Tab 4: Double Moving Averages
+    with tab4:
+        fig_dma = go.Figure()
+        
+        # Percentage Above Both (Green line)
+        if dff['Percentage_Above_Both'].notna().any():
+            fig_dma.add_trace(go.Scatter(
+                x=dff['Date'],
+                y=dff['Percentage_Above_Both'],
+                name='Percentage of Members Above 50-DMA and 200-DMA',
+                line=dict(width=2, color='#00ff00'),
+                mode='lines',
+                fill='tozeroy',
+                fillcolor='rgba(0, 255, 0, 0.2)'
+            ))
+        
+        # Percentage Below Both (Red line)
+        if dff['Percentage_Below_Both'].notna().any():
+            fig_dma.add_trace(go.Scatter(
+                x=dff['Date'],
+                y=dff['Percentage_Below_Both'],
+                name='Percentage of Members Below 50-DMA and 200-DMA',
+                line=dict(width=2, color='#ff0000'),
+                mode='lines',
+                fill='tozeroy',
+                fillcolor='rgba(255, 0, 0, 0.2)'
+            ))
+        
+        if rangebreaks:
+            fig_dma.update_xaxes(rangebreaks=rangebreaks)
+        
+        fig_dma.update_layout(
+            height=450,
+            template='plotly_dark',
+            hovermode='x unified',
+            legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+            yaxis=dict(
+                title='Double Moving Averages',
+                range=[0, 100]
+            ),
+            xaxis_title='Date',
+            margin=dict(l=10, r=10, t=60, b=10)
+        )
+        
+        st.plotly_chart(fig_dma, use_container_width=True, config={'displayModeBar': True})
+    
+    # Tab 5: Different New Highs and New Lows
+    with tab5:
+        # Panel 1: 2 Weeks (NH10, NL10, Diff_NHNL10)
+        show_diff_2w = st.checkbox("📊 New High & New Low 2 Weeks", value=True, key="show_diff_2w")
+        if show_diff_2w:
+            fig_diff_2w = go.Figure()
+            
+            # Bar chart for Diff_NHNL10
+            if dff['Diff_NHNL10'].notna().any():
+                colors = ['#00ff00' if val >= 0 else '#ff0000' for val in dff['Diff_NHNL10']]
+                fig_diff_2w.add_trace(go.Bar(
+                    x=dff['Date'],
+                    y=dff['Diff_NHNL10'],
+                    name='Different Percentage of Members with New 2 Weeks Highs and New 2 Weeks Lows',
+                    marker_color=colors,
+                    showlegend=True
+                ))
+            
+            # Line - NH10 (Green)
+            if dff['NH10'].notna().any():
+                fig_diff_2w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['NH10'],
+                    name='Percentage of Members with New 2 Weeks Highs',
+                    line=dict(width=2, color='#00ff00'),
+                    mode='lines',
+                    showlegend=True
+                ))
+            
+            # Line - NL10 (Red)
+            if dff['NL10'].notna().any():
+                fig_diff_2w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['NL10'],
+                    name='Percentage of Members with New 2 Weeks Lows',
+                    line=dict(width=2, color='#ff0000'),
+                    mode='lines',
+                    showlegend=True
+                ))
+            
+            if rangebreaks:
+                fig_diff_2w.update_xaxes(rangebreaks=rangebreaks)
+            
+            fig_diff_2w.update_layout(
+                height=400,
+                template='plotly_dark',
+                hovermode='x unified',
+                legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+                yaxis_title='New Highs & New Lows (2 weeks)',
+                xaxis_title='Date',
+                margin=dict(l=10, r=10, t=60, b=10)
+            )
+            
+            st.plotly_chart(fig_diff_2w, use_container_width=True, config={'displayModeBar': True})
+            st.markdown("---")
+        
+        # Panel 2: 4 Weeks (NH20, NL20, Diff_NHNL20)
+        show_diff_4w = st.checkbox("📊 New High & New Low 4 Weeks", value=True, key="show_diff_4w")
+        if show_diff_4w:
+            fig_diff_4w = go.Figure()
+            
+            # Bar chart for Diff_NHNL20
+            if dff['Diff_NHNL20'].notna().any():
+                colors = ['#00ff00' if val >= 0 else '#ff0000' for val in dff['Diff_NHNL20']]
+                fig_diff_4w.add_trace(go.Bar(
+                    x=dff['Date'],
+                    y=dff['Diff_NHNL20'],
+                    name='Different Percentage of Members with New 4 Weeks Highs and New 4 Weeks Lows',
+                    marker_color=colors,
+                    showlegend=True
+                ))
+            
+            # Line - NH20 (Green)
+            if dff['NH20'].notna().any():
+                fig_diff_4w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['NH20'],
+                    name='Percentage of Members with New 4 Weeks Highs',
+                    line=dict(width=2, color='#00ff00'),
+                    mode='lines',
+                    showlegend=True
+                ))
+            
+            # Line - NL20 (Red)
+            if dff['NL20'].notna().any():
+                fig_diff_4w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['NL20'],
+                    name='Percentage of Members with New 4 Weeks Lows',
+                    line=dict(width=2, color='#ff0000'),
+                    mode='lines',
+                    showlegend=True
+                ))
+            
+            if rangebreaks:
+                fig_diff_4w.update_xaxes(rangebreaks=rangebreaks)
+            
+            fig_diff_4w.update_layout(
+                height=400,
+                template='plotly_dark',
+                hovermode='x unified',
+                legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+                yaxis_title='New Highs & New Lows (4 weeks)',
+                xaxis_title='Date',
+                margin=dict(l=10, r=10, t=60, b=10)
+            )
+            
+            st.plotly_chart(fig_diff_4w, use_container_width=True, config={'displayModeBar': True})
+            st.markdown("---")
+        
+        # Panel 3: 10 Weeks (NH50, NL50, Diff_NHNL50)
+        show_diff_10w = st.checkbox("📊 New High & New Low 10 Weeks", value=True, key="show_diff_10w")
+        if show_diff_10w:
+            fig_diff_10w = go.Figure()
+            
+            # Bar chart for Diff_NHNL50
+            if dff['Diff_NHNL50'].notna().any():
+                colors = ['#00ff00' if val >= 0 else '#ff0000' for val in dff['Diff_NHNL50']]
+                fig_diff_10w.add_trace(go.Bar(
+                    x=dff['Date'],
+                    y=dff['Diff_NHNL50'],
+                    name='Different Percentage of Members with New 10 Weeks Highs and New 10 Weeks Lows',
+                    marker_color=colors,
+                    showlegend=True
+                ))
+            
+            # Line - NH50 (Green)
+            if dff['NH50'].notna().any():
+                fig_diff_10w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['NH50'],
+                    name='Percentage of Members with New 10 Weeks Highs',
+                    line=dict(width=2, color='#00ff00'),
+                    mode='lines',
+                    showlegend=True
+                ))
+            
+            # Line - NL50 (Red)
+            if dff['NL50'].notna().any():
+                fig_diff_10w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['NL50'],
+                    name='Percentage of Members with New 10 Weeks Lows',
+                    line=dict(width=2, color='#ff0000'),
+                    mode='lines',
+                    showlegend=True
+                ))
+            
+            if rangebreaks:
+                fig_diff_10w.update_xaxes(rangebreaks=rangebreaks)
+            
+            fig_diff_10w.update_layout(
+                height=400,
+                template='plotly_dark',
+                hovermode='x unified',
+                legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+                yaxis_title='New Highs & New Lows (10 weeks)',
+                xaxis_title='Date',
+                margin=dict(l=10, r=10, t=60, b=10)
+            )
+            
+            st.plotly_chart(fig_diff_10w, use_container_width=True, config={'displayModeBar': True})
+            st.markdown("---")
+        
+        # Panel 4: 20 Weeks (NH100, NL100, Diff_NHNL100)
+        show_diff_20w = st.checkbox("📊 New High & New Low 20 Weeks", value=True, key="show_diff_20w")
+        if show_diff_20w:
+            fig_diff_20w = go.Figure()
+            
+            # Bar chart for Diff_NHNL100
+            if dff['Diff_NHNL100'].notna().any():
+                colors = ['#00ff00' if val >= 0 else '#ff0000' for val in dff['Diff_NHNL100']]
+                fig_diff_20w.add_trace(go.Bar(
+                    x=dff['Date'],
+                    y=dff['Diff_NHNL100'],
+                    name='Different Percentage of Members with New 20 Weeks Highs and New 20 Weeks Lows',
+                    marker_color=colors,
+                    showlegend=True
+                ))
+            
+            # Line - NH100 (Green)
+            if dff['NH100'].notna().any():
+                fig_diff_20w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['NH100'],
+                    name='Percentage of Members with New 20 Weeks Highs',
+                    line=dict(width=2, color='#00ff00'),
+                    mode='lines',
+                    showlegend=True
+                ))
+            
+            # Line - NL100 (Red)
+            if dff['NL100'].notna().any():
+                fig_diff_20w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['NL100'],
+                    name='Percentage of Members with New 20 Weeks Lows',
+                    line=dict(width=2, color='#ff0000'),
+                    mode='lines',
+                    showlegend=True
+                ))
+            
+            if rangebreaks:
+                fig_diff_20w.update_xaxes(rangebreaks=rangebreaks)
+            
+            fig_diff_20w.update_layout(
+                height=400,
+                template='plotly_dark',
+                hovermode='x unified',
+                legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+                yaxis_title='New Highs & New Lows (20 weeks)',
+                xaxis_title='Date',
+                margin=dict(l=10, r=10, t=60, b=10)
+            )
+            
+            st.plotly_chart(fig_diff_20w, use_container_width=True, config={'displayModeBar': True})
+            st.markdown("---")
+        
+        # Panel 5: 40 Weeks (NH200, NL200, Diff_NHNL200)
+        show_diff_40w = st.checkbox("📊 New High & New Low 40 Weeks", value=True, key="show_diff_40w")
+        if show_diff_40w:
+            fig_diff_40w = go.Figure()
+            
+            # Bar chart for Diff_NHNL200
+            if dff['Diff_NHNL200'].notna().any():
+                colors = ['#00ff00' if val >= 0 else '#ff0000' for val in dff['Diff_NHNL200']]
+                fig_diff_40w.add_trace(go.Bar(
+                    x=dff['Date'],
+                    y=dff['Diff_NHNL200'],
+                    name='Different Percentage of Members with New 40 Weeks Highs and New 40 Weeks Lows',
+                    marker_color=colors,
+                    showlegend=True
+                ))
+            
+            # Line - NH200 (Green)
+            if dff['NH200'].notna().any():
+                fig_diff_40w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['NH200'],
+                    name='Percentage of Members with New 40 Weeks Highs',
+                    line=dict(width=2, color='#00ff00'),
+                    mode='lines',
+                    showlegend=True
+                ))
+            
+            # Line - NL200 (Red)
+            if dff['NL200'].notna().any():
+                fig_diff_40w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['NL200'],
+                    name='Percentage of Members with New 40 Weeks Lows',
+                    line=dict(width=2, color='#ff0000'),
+                    mode='lines',
+                    showlegend=True
+                ))
+            
+            if rangebreaks:
+                fig_diff_40w.update_xaxes(rangebreaks=rangebreaks)
+            
+            fig_diff_40w.update_layout(
+                height=400,
+                template='plotly_dark',
+                hovermode='x unified',
+                legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+                yaxis_title='New Highs & New Lows (40 weeks)',
+                xaxis_title='Date',
+                margin=dict(l=10, r=10, t=60, b=10)
+            )
+            
+            st.plotly_chart(fig_diff_40w, use_container_width=True, config={'displayModeBar': True})
 
 # Footer
 st.markdown("---")
