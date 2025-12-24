@@ -1,5 +1,5 @@
 """
-SET50 Index Market Breadth Dashboard
+SET100 Index Market Breadth Dashboard
 """
 
 import streamlit as st
@@ -15,23 +15,23 @@ import pytz
 # AUTHENTICATION CHECK - MUST BE AT THE TOP
 # =====================================================
 if "password_correct" not in st.session_state or not st.session_state.get("password_correct", False):
-    st.set_page_config(page_title="SET50 Index - Login Required", layout="wide")
+    st.set_page_config(page_title="SET100 Index - Login Required", layout="wide")
     st.error("🔒 Please log in from the home page first")
     st.page_link("Cover.py", label="← Go to Login Page", icon="🏠")
     st.stop()
-    
+
 # -------------------------
 # Page Configuration
 # -------------------------
-st.set_page_config(page_title="SET50 Index Market Analysis", layout="wide")
+st.set_page_config(page_title="SET100 Index Market Analysis", layout="wide")
 
 SHEET_ID = "1faOXwIk7uR51IIeAMrrRPdorRsO7iJ3PDPn-mk5vc24"
-GID = "1903958263"   # <<< SET50 INDEX GID
+GID = "80578723"   # <<< SET100 INDEX GID
 
 URL_PRIMARY = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}"
 URL_FALLBACK = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&gid={GID}"
 
-st.title("📈 SET50 Index Market Analysis")
+st.title("📈 SET100 Index Market Analysis")
 
 # -------------------------
 # Helper Functions
@@ -83,7 +83,7 @@ def make_rangebreaks(dates: pd.Series, max_holidays: int = 250):
     return rbs
 
 @st.cache_data(ttl=600, show_spinner=False)
-def load_set50_data(url_primary: str, url_fallback: str) -> pd.DataFrame:
+def load_set100_data(url_primary: str, url_fallback: str) -> pd.DataFrame:
     session = requests.Session()
     headers = {"User-Agent": "Mozilla/5.0"}
 
@@ -95,7 +95,7 @@ def load_set50_data(url_primary: str, url_fallback: str) -> pd.DataFrame:
 
     raise ValueError("Google Sheet did not return CSV")
 
-def parse_set50_data(df: pd.DataFrame) -> pd.DataFrame:
+def parse_set100_data(df: pd.DataFrame) -> pd.DataFrame:
     df['Date'] = _parse_date_series(df.iloc[:, 0])
 
     df['Open']  = _clean_numeric_series(df.iloc[:, 1])
@@ -136,8 +136,8 @@ def parse_set50_data(df: pd.DataFrame) -> pd.DataFrame:
 # -------------------------
 # Load Data
 # -------------------------
-raw_df = load_set50_data(URL_PRIMARY, URL_FALLBACK)
-df = parse_set50_data(raw_df)
+raw_df = load_set100_data(URL_PRIMARY, URL_FALLBACK)
+df = parse_set100_data(raw_df)
 
 # -------------------------
 # Controls
@@ -171,10 +171,10 @@ st.write(f"Showing: **{start_date.date()} → {end_date.date()}** ({len(dff)} da
 rangebreaks = make_rangebreaks(dff['Date'])
 
 # -------------------------
-# PANEL 1: SET50 Candlestick
+# PANEL 1: SET100 Candlestick
 # -------------------------
 st.markdown("---")
-with st.expander("📈 SET50 Index", expanded=True):
+with st.expander("📈 SET100 Index", expanded=True):
     fig = go.Figure(go.Candlestick(
         x=dff['Date'],
         open=dff['Open'],
@@ -190,7 +190,7 @@ with st.expander("📈 SET50 Index", expanded=True):
         height=500,
         template='plotly_dark',
         xaxis_rangeslider_visible=False,
-        yaxis_title='SET50 Index',
+        yaxis_title='SET100 Index',
         xaxis_title='Date',
         hovermode='x unified',
         margin=dict(l=10, r=10, t=40, b=10)
@@ -245,7 +245,7 @@ with st.expander("📈 New Highs & Lows", expanded=True):
             barmode='overlay',
             yaxis=dict(
                 title='Number of Members with New Highs & New Lows (4 Weeks)',
-                range=[-50, 50],
+                range=[-100, 100],
                 zeroline=True,
                 zerolinecolor='rgba(255,255,255,0.4)'
             ),
@@ -303,7 +303,7 @@ with st.expander("📈 New Highs & Lows", expanded=True):
             barmode='overlay',
             yaxis=dict(
                 title='Number of Members with New Highs & New Lows (13 Weeks)',
-                range=[-50, 50],
+                range=[-100, 100],
                 zeroline=True,
                 zerolinecolor='rgba(255,255,255,0.4)'
             ),
@@ -361,7 +361,7 @@ with st.expander("📈 New Highs & Lows", expanded=True):
             barmode='overlay',
             yaxis=dict(
                 title='Number of Members with New Highs & New Lows (26 Weeks)',
-                range=[-50, 50],
+                range=[-100, 100],
                 zeroline=True,
                 zerolinecolor='rgba(255,255,255,0.4)'
             ),
@@ -419,7 +419,7 @@ with st.expander("📈 New Highs & Lows", expanded=True):
             barmode='overlay',
             yaxis=dict(
                 title='Number of Members with New Highs & New Lows (52 Weeks)',
-                range=[-50, 50],
+                range=[-100, 100],
                 zeroline=True,
                 zerolinecolor='rgba(255,255,255,0.4)'
             ),
@@ -492,7 +492,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
             height=400,
             template='plotly_dark',
             hovermode='x unified',
-            yaxis=dict(range=[0, 50], title='Number of Members'),
+            yaxis=dict(range=[0, 100], title='Number of Members'),
             xaxis_title='Date',
             legend=dict(
                 orientation='h',
@@ -544,7 +544,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
             legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
             yaxis=dict(
                 title='Double Moving Averages',
-                range=[0, 50]
+                range=[0, 100]
             ),
             xaxis_title='Date',
             margin=dict(l=10, r=10, t=60, b=10)
@@ -554,4 +554,4 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
             
 # Footer
 st.markdown("---")
-st.caption(f"📊 SET50 Index Dashboard | {len(dff)} data points | {dff['Date'].min().date()} to {dff['Date'].max().date()}")
+st.caption(f"📊 SET100 Index Dashboard | {len(dff)} data points | {dff['Date'].min().date()} to {dff['Date'].max().date()}")
