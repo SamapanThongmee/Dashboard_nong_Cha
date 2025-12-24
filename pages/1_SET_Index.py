@@ -338,7 +338,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
             fig_above.add_trace(go.Scatter(
                 x=dff_pct['Date'],
                 y=dff_pct['Above_EMA10'],
-                name='Percentage of Members with Px > 10 Day Exponential Moving Average',
+                name='Percentage of Members with Px > 10 Day Simple Moving Average',
                 line=dict(width=1, color='#00ff00'),
                 mode='lines'
             ))
@@ -347,7 +347,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
             fig_above.add_trace(go.Scatter(
                 x=dff_pct['Date'],
                 y=dff_pct['Above_EMA20'],
-                name='Percentage of Members with Px > 20 Day Exponential Moving Average',
+                name='Percentage of Members with Px > 20 Day Simple Moving Average',
                 line=dict(width=1.5, color='#26a69a'),
                 mode='lines'
             ))
@@ -356,7 +356,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
             fig_above.add_trace(go.Scatter(
                 x=dff_pct['Date'],
                 y=dff_pct['Above_EMA50'],
-                name='Percentage of Members with Px > 50 Day Exponential Moving Average',
+                name='Percentage of Members with Px > 50 Day Simple Moving Average',
                 line=dict(width=2, color='#2ecc71'),
                 mode='lines'
             ))
@@ -365,7 +365,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
             fig_above.add_trace(go.Scatter(
                 x=dff_pct['Date'],
                 y=dff_pct['Above_EMA100'],
-                name='Percentage of Members with Px > 100 Day Exponential Moving Average',
+                name='Percentage of Members with Px > 100 Day Simple Moving Average',
                 line=dict(width=2.5, color='#27ae60'),
                 mode='lines'
             ))
@@ -374,7 +374,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
             fig_above.add_trace(go.Scatter(
                 x=dff_pct['Date'],
                 y=dff_pct['Above_EMA200'],
-                name='Percentage of Members with Px > 200 Day Exponential Moving Average',
+                name='Percentage of Members with Px > 200 Day Simple Moving Average',
                 line=dict(width=3, color='#1e8449'),
                 mode='lines'
             ))
@@ -394,7 +394,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
                 x=0.5
             ),
             yaxis=dict(
-                title='Above Exponential Moving Averages',
+                title='Above Simple Moving Averages',
                 range=[0, 100]
             ),
             xaxis_title='Date',
