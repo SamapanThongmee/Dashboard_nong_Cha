@@ -566,8 +566,8 @@ st.markdown("---")
 with st.expander("📊 Market Breadth Analysis", expanded=True):
     tab1, tab2, tab3, tab4 = st.tabs([
         "📊 Simple Moving Averages", 
-        "📉 Modified New High & New Lows",
-        "📊 Double Moving Averages",
+        "📊 Double Simple Moving Averages",
+        "📉 Modified New Highs and New Lows",
         "📈 Different New Highs and New Lows"
     ])
     
@@ -653,131 +653,8 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
         
         st.plotly_chart(fig_above, use_container_width=True, config={'displayModeBar': True})
     
-    # Tab 2: Modified New High & New Lows
+    # Tab 2: Double Simple Moving Averages
     with tab2:
-        # Panel 1: Ratio New Highs and New Lows
-        fig_ratio = go.Figure()
-        
-        # Ratio_NHNL20 - solid line (multiply by 100 for percentage)
-        if dff['Ratio_NHNL20'].notna().any():
-            fig_ratio.add_trace(go.Scatter(
-                x=dff['Date'],
-                y=dff['Ratio_NHNL20'] * 100,
-                name='Ratio New Highs & New Lows 4 Weeks',
-                line=dict(width=2, color='#00ff00', dash='solid'),
-                mode='lines'
-            ))
-        
-        # RATIO_NHNL20_MA20 - dashed line (multiply by 100 for percentage)
-        if dff['Ratio_NHNL20_MA20'].notna().any():
-            fig_ratio.add_trace(go.Scatter(
-                x=dff['Date'],
-                y=dff['Ratio_NHNL20_MA20'] * 100,
-                name='Ratio New Highs & New Lows 4 Weeks (Threshold line)',
-                line=dict(width=2, color='#00ff00', dash='dash'),
-                mode='lines'
-            ))
-        
-        # Ratio_NHNL50 - solid line (multiply by 100 for percentage)
-        if dff['Ratio_NHNL50'].notna().any():
-            fig_ratio.add_trace(go.Scatter(
-                x=dff['Date'],
-                y=dff['Ratio_NHNL50'] * 100,
-                name='Ratio New Highs & New Lows 10 Weeks',
-                line=dict(width=2, color='#2ecc71', dash='solid'),
-                mode='lines'
-            ))
-        
-        # RATIO_NHNL50_MA50 - dashed line (multiply by 100 for percentage)
-        if dff['Ratio_NHNL50_MA50'].notna().any():
-            fig_ratio.add_trace(go.Scatter(
-                x=dff['Date'],
-                y=dff['Ratio_NHNL50_MA50'] * 100,
-                name='Ratio New Highs & New Lows 10 Weeks (Threshold line)',
-                line=dict(width=2, color='#2ecc71', dash='dash'),
-                mode='lines'
-            ))
-        
-        # Ratio_NHNL200 - solid line (multiply by 100 for percentage)
-        if dff['Ratio_NHNL200'].notna().any():
-            fig_ratio.add_trace(go.Scatter(
-                x=dff['Date'],
-                y=dff['Ratio_NHNL200'] * 100,
-                name='Ratio New Highs & New Lows 40 Weeks',
-                line=dict(width=2, color='#1e8449', dash='solid'),
-                mode='lines'
-            ))
-        
-        # RATIO_NHNL200_MA50 - dashed line (multiply by 100 for percentage)
-        if dff['Ratio_NHNL200_MA50'].notna().any():
-            fig_ratio.add_trace(go.Scatter(
-                x=dff['Date'],
-                y=dff['Ratio_NHNL200_MA50'] * 100,
-                name='Ratio New Highs & New Lows 40 Weeks (Threshold line)',
-                line=dict(width=2, color='#1e8449', dash='dash'),
-                mode='lines'
-            ))
-        
-        if rangebreaks:
-            fig_ratio.update_xaxes(rangebreaks=rangebreaks)
-        
-        fig_ratio.update_layout(
-            height=450,
-            template='plotly_dark',
-            hovermode='x unified',
-            legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-            yaxis=dict(
-                title='Ratio New Highs and New Lows',
-                range=[0, 100]
-            ),
-            xaxis_title='Date',
-            margin=dict(l=10, r=10, t=60, b=10)
-        )
-        
-        st.plotly_chart(fig_ratio, use_container_width=True, config={'displayModeBar': True})
-                
-        st.markdown("---")
-        
-        # Panel 2: Diff. Short-Long New Highs and New Lows
-        fig_diff = go.Figure()
-        
-        # DIFF_SHORT_LONG_NHNL - solid line
-        if dff['Diff_Short_Long_NHNL'].notna().any():
-            fig_diff.add_trace(go.Scatter(
-                x=dff['Date'],
-                y=dff['Diff_Short_Long_NHNL'],
-                name='Diff. Short-Long New Highs and New Lows',
-                line=dict(width=2, color='#3498db', dash='solid'),
-                mode='lines'
-            ))
-        
-        # DIFF_SHORT_LONG_NHNL_MA60 - dashed line
-        if dff['Diff_Short_Long_NHNL_MA60'].notna().any():
-            fig_diff.add_trace(go.Scatter(
-                x=dff['Date'],
-                y=dff['Diff_Short_Long_NHNL_MA60'],
-                name='Threshold Line',
-                line=dict(width=2, color='#3498db', dash='dash'),
-                mode='lines'
-            ))
-        
-        if rangebreaks:
-            fig_diff.update_xaxes(rangebreaks=rangebreaks)
-        
-        fig_diff.update_layout(
-            height=450,
-            template='plotly_dark',
-            hovermode='x unified',
-            legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-            yaxis_title='Diff. Short-Long New Highs and New Lows',
-            xaxis_title='Date',
-            margin=dict(l=10, r=10, t=60, b=10)
-        )
-        
-        st.plotly_chart(fig_diff, use_container_width=True, config={'displayModeBar': True})
-    
-    # Tab 3: Double Moving Averages
-    with tab3:
         fig_dma = go.Figure()
         
         # Percentage Above Both (Green line)
@@ -813,7 +690,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
             hovermode='x unified',
             legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
             yaxis=dict(
-                title='Double Moving Averages',
+                title='Double Simple Moving Averages',
                 range=[0, 100]
             ),
             xaxis_title='Date',
@@ -821,6 +698,180 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
         )
         
         st.plotly_chart(fig_dma, use_container_width=True, config={'displayModeBar': True})
+    
+    # Tab 3: Modified New Highs and New Lows
+    with tab3:
+        # Panel 1: Diff. Short-Long New Highs and New Lows
+        show_diff_short_long = st.checkbox("📊 Diff. Short-Long New Highs and New Lows", value=True, key="show_diff_short_long")
+        if show_diff_short_long:
+            fig_diff = go.Figure()
+            
+            # DIFF_SHORT_LONG_NHNL - solid line
+            if dff['Diff_Short_Long_NHNL'].notna().any():
+                fig_diff.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['Diff_Short_Long_NHNL'],
+                    name='Diff. Short-Long New Highs and New Lows',
+                    line=dict(width=2, color='#3498db', dash='solid'),
+                    mode='lines'
+                ))
+            
+            # DIFF_SHORT_LONG_NHNL_MA60 - dashed line
+            if dff['Diff_Short_Long_NHNL_MA60'].notna().any():
+                fig_diff.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['Diff_Short_Long_NHNL_MA60'],
+                    name='Threshold Line',
+                    line=dict(width=2, color='#3498db', dash='dash'),
+                    mode='lines'
+                ))
+            
+            if rangebreaks:
+                fig_diff.update_xaxes(rangebreaks=rangebreaks)
+            
+            fig_diff.update_layout(
+                height=450,
+                template='plotly_dark',
+                hovermode='x unified',
+                legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+                yaxis_title='Diff. Short-Long New Highs and New Lows',
+                xaxis_title='Date',
+                margin=dict(l=10, r=10, t=60, b=10)
+            )
+            
+            st.plotly_chart(fig_diff, use_container_width=True, config={'displayModeBar': True})
+            st.markdown("---")
+        
+        # Panel 2: Ratio New Highs & New Lows 4 Weeks
+        show_ratio_4w = st.checkbox("📊 Ratio New Highs & New Lows 4 Weeks", value=True, key="show_ratio_4w")
+        if show_ratio_4w:
+            fig_ratio_4w = go.Figure()
+            
+            # Ratio_NHNL20 - solid line (multiply by 100 for percentage)
+            if dff['Ratio_NHNL20'].notna().any():
+                fig_ratio_4w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['Ratio_NHNL20'] * 100,
+                    name='Ratio New Highs & New Lows 4 Weeks',
+                    line=dict(width=2, color='#00ff00', dash='solid'),
+                    mode='lines'
+                ))
+            
+            # RATIO_NHNL20_MA20 - dashed line (multiply by 100 for percentage)
+            if dff['Ratio_NHNL20_MA20'].notna().any():
+                fig_ratio_4w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['Ratio_NHNL20_MA20'] * 100,
+                    name='Ratio New Highs & New Lows 4 Weeks (Threshold line)',
+                    line=dict(width=2, color='#00ff00', dash='dash'),
+                    mode='lines'
+                ))
+            
+            if rangebreaks:
+                fig_ratio_4w.update_xaxes(rangebreaks=rangebreaks)
+            
+            fig_ratio_4w.update_layout(
+                height=450,
+                template='plotly_dark',
+                hovermode='x unified',
+                legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+                yaxis=dict(
+                    title='Ratio New Highs and New Lows (4 Weeks)',
+                    range=[0, 100]
+                ),
+                xaxis_title='Date',
+                margin=dict(l=10, r=10, t=60, b=10)
+            )
+            
+            st.plotly_chart(fig_ratio_4w, use_container_width=True, config={'displayModeBar': True})
+            st.markdown("---")
+        
+        # Panel 3: Ratio New Highs & New Lows 10 Weeks
+        show_ratio_10w = st.checkbox("📊 Ratio New Highs & New Lows 10 Weeks", value=True, key="show_ratio_10w")
+        if show_ratio_10w:
+            fig_ratio_10w = go.Figure()
+            
+            # Ratio_NHNL50 - solid line (multiply by 100 for percentage)
+            if dff['Ratio_NHNL50'].notna().any():
+                fig_ratio_10w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['Ratio_NHNL50'] * 100,
+                    name='Ratio New Highs & New Lows 10 Weeks',
+                    line=dict(width=2, color='#2ecc71', dash='solid'),
+                    mode='lines'
+                ))
+            
+            # RATIO_NHNL50_MA50 - dashed line (multiply by 100 for percentage)
+            if dff['Ratio_NHNL50_MA50'].notna().any():
+                fig_ratio_10w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['Ratio_NHNL50_MA50'] * 100,
+                    name='Ratio New Highs & New Lows 10 Weeks (Threshold line)',
+                    line=dict(width=2, color='#2ecc71', dash='dash'),
+                    mode='lines'
+                ))
+            
+            if rangebreaks:
+                fig_ratio_10w.update_xaxes(rangebreaks=rangebreaks)
+            
+            fig_ratio_10w.update_layout(
+                height=450,
+                template='plotly_dark',
+                hovermode='x unified',
+                legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+                yaxis=dict(
+                    title='Ratio New Highs and New Lows (10 Weeks)',
+                    range=[0, 100]
+                ),
+                xaxis_title='Date',
+                margin=dict(l=10, r=10, t=60, b=10)
+            )
+            
+            st.plotly_chart(fig_ratio_10w, use_container_width=True, config={'displayModeBar': True})
+            st.markdown("---")
+        
+        # Panel 4: Ratio New Highs & New Lows 40 Weeks
+        show_ratio_40w = st.checkbox("📊 Ratio New Highs & New Lows 40 Weeks", value=True, key="show_ratio_40w")
+        if show_ratio_40w:
+            fig_ratio_40w = go.Figure()
+            
+            # Ratio_NHNL200 - solid line (multiply by 100 for percentage)
+            if dff['Ratio_NHNL200'].notna().any():
+                fig_ratio_40w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['Ratio_NHNL200'] * 100,
+                    name='Ratio New Highs & New Lows 40 Weeks',
+                    line=dict(width=2, color='#1e8449', dash='solid'),
+                    mode='lines'
+                ))
+            
+            # RATIO_NHNL200_MA50 - dashed line (multiply by 100 for percentage)
+            if dff['Ratio_NHNL200_MA50'].notna().any():
+                fig_ratio_40w.add_trace(go.Scatter(
+                    x=dff['Date'],
+                    y=dff['Ratio_NHNL200_MA50'] * 100,
+                    name='Ratio New Highs & New Lows 40 Weeks (Threshold line)',
+                    line=dict(width=2, color='#1e8449', dash='dash'),
+                    mode='lines'
+                ))
+            
+            if rangebreaks:
+                fig_ratio_40w.update_xaxes(rangebreaks=rangebreaks)
+            
+            fig_ratio_40w.update_layout(
+                height=450,
+                template='plotly_dark',
+                hovermode='x unified',
+                legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+                yaxis=dict(
+                    title='Ratio New Highs and New Lows (40 Weeks)',
+                    range=[0, 100]
+                ),
+                xaxis_title='Date',
+                margin=dict(l=10, r=10, t=60, b=10)
+            )
+            
+            st.plotly_chart(fig_ratio_40w, use_container_width=True, config={'displayModeBar': True})
     
     # Tab 4: Different New Highs and New Lows
     with tab4:
@@ -1096,4 +1147,3 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
 # Footer
 st.markdown("---")
 st.caption(f"📊 SET Index Dashboard | {len(dff)} data points | {dff['Date'].min().date()} to {dff['Date'].max().date()}")
-# %%
