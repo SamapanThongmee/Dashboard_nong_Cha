@@ -403,7 +403,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
         
         st.plotly_chart(fig_above, use_container_width=True, config={'displayModeBar': True})
         
-        st.markdown("---")
+        # st.markdown("---")
         
         # fig_below = go.Figure()
         
