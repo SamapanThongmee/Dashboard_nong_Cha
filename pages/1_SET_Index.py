@@ -714,7 +714,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
 # Tab 3: Modified New High & New Lows
     with tab3:
 # Panel 1: Ratio New Highs and New Lows
-        st.subheader("📊 Ratio New Highs and New Lows")
+        # st.subheader("📊 Ratio New Highs and New Lows")
         
         fig_ratio = go.Figure()
         
@@ -799,7 +799,7 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
         st.markdown("---")
         
         # Panel 2: Diff. Short-Long New Highs and New Lows
-        st.subheader("📉 Diff. Short-Long New Highs and New Lows")
+        # st.subheader("📉 Diff. Short-Long New Highs and New Lows")
         
         fig_diff = go.Figure()
         
