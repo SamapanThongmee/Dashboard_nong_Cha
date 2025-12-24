@@ -143,11 +143,11 @@ def parse_set_data(df: pd.DataFrame) -> pd.DataFrame:
     df['Above_EMA50'] = _clean_numeric_series(df.iloc[:, 7])
     df['Above_EMA100'] = _clean_numeric_series(df.iloc[:, 8])
     df['Above_EMA200'] = _clean_numeric_series(df.iloc[:, 9])
-    df['Below_EMA10'] = _clean_numeric_series(df.iloc[:, 10])
-    df['Below_EMA20'] = _clean_numeric_series(df.iloc[:, 11])
-    df['Below_EMA50'] = _clean_numeric_series(df.iloc[:, 12])
-    df['Below_EMA100'] = _clean_numeric_series(df.iloc[:, 13])
-    df['Below_EMA200'] = _clean_numeric_series(df.iloc[:, 14])
+    # df['Below_EMA10'] = _clean_numeric_series(df.iloc[:, 10])
+    # df['Below_EMA20'] = _clean_numeric_series(df.iloc[:, 11])
+    # df['Below_EMA50'] = _clean_numeric_series(df.iloc[:, 12])
+    # df['Below_EMA100'] = _clean_numeric_series(df.iloc[:, 13])
+    # df['Below_EMA200'] = _clean_numeric_series(df.iloc[:, 14])
     
     # New High/Low columns (P-W) - columns 15-22
     df['NH20'] = _clean_numeric_series(df.iloc[:, 15])
@@ -192,7 +192,7 @@ def parse_set_data(df: pd.DataFrame) -> pd.DataFrame:
     # Keep only processed columns
     processed_cols = ['Date', 'Open', 'High', 'Low', 'Close',
                       'Above_EMA10', 'Above_EMA20', 'Above_EMA50', 'Above_EMA100', 'Above_EMA200',
-                      'Below_EMA10', 'Below_EMA20', 'Below_EMA50', 'Below_EMA100', 'Below_EMA200',
+                    #   'Below_EMA10', 'Below_EMA20', 'Below_EMA50', 'Below_EMA100', 'Below_EMA200',
                       'NH20', 'NH65', 'NH130', 'NH260',
                       'NL20', 'NL65', 'NL130', 'NL260',
                       'Ratio_NHNL20', 'Ratio_NHNL20_MA20', 'Ratio_NHNL50', 'Ratio_NHNL50_MA50',
@@ -325,11 +325,11 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
         dff_pct['Above_EMA50'] = dff['Above_EMA50'] * 100
         dff_pct['Above_EMA100'] = dff['Above_EMA100'] * 100
         dff_pct['Above_EMA200'] = dff['Above_EMA200'] * 100
-        dff_pct['Below_EMA10'] = dff['Below_EMA10'] * 100
-        dff_pct['Below_EMA20'] = dff['Below_EMA20'] * 100
-        dff_pct['Below_EMA50'] = dff['Below_EMA50'] * 100
-        dff_pct['Below_EMA100'] = dff['Below_EMA100'] * 100
-        dff_pct['Below_EMA200'] = dff['Below_EMA200'] * 100
+        # dff_pct['Below_EMA10'] = dff['Below_EMA10'] * 100
+        # dff_pct['Below_EMA20'] = dff['Below_EMA20'] * 100
+        # dff_pct['Below_EMA50'] = dff['Below_EMA50'] * 100
+        # dff_pct['Below_EMA100'] = dff['Below_EMA100'] * 100
+        # dff_pct['Below_EMA200'] = dff['Below_EMA200'] * 100
         
         fig_above = go.Figure()
         
@@ -405,77 +405,77 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
         
         st.markdown("---")
         
-        fig_below = go.Figure()
+        # fig_below = go.Figure()
         
-        # Below EMA lines (red shades)
-        if dff_pct['Below_EMA10'].notna().any():
-            fig_below.add_trace(go.Scatter(
-                x=dff_pct['Date'],
-                y=dff_pct['Below_EMA10'],
-                name='Percentage of Members with Px < 10 Day Exponential Moving Average',
-                line=dict(width=1, color='#ff6b6b'),
-                mode='lines'
-            ))
+        # # Below EMA lines (red shades)
+        # if dff_pct['Below_EMA10'].notna().any():
+        #     fig_below.add_trace(go.Scatter(
+        #         x=dff_pct['Date'],
+        #         y=dff_pct['Below_EMA10'],
+        #         name='Percentage of Members with Px < 10 Day Exponential Moving Average',
+        #         line=dict(width=1, color='#ff6b6b'),
+        #         mode='lines'
+        #     ))
         
-        if dff_pct['Below_EMA20'].notna().any():
-            fig_below.add_trace(go.Scatter(
-                x=dff_pct['Date'],
-                y=dff_pct['Below_EMA20'],
-                name='Percentage of Members with Px < 20 Day Exponential Moving Average',
-                line=dict(width=1.5, color='#ef5350'),
-                mode='lines'
-            ))
+        # if dff_pct['Below_EMA20'].notna().any():
+        #     fig_below.add_trace(go.Scatter(
+        #         x=dff_pct['Date'],
+        #         y=dff_pct['Below_EMA20'],
+        #         name='Percentage of Members with Px < 20 Day Exponential Moving Average',
+        #         line=dict(width=1.5, color='#ef5350'),
+        #         mode='lines'
+        #     ))
         
-        if dff_pct['Below_EMA50'].notna().any():
-            fig_below.add_trace(go.Scatter(
-                x=dff_pct['Date'],
-                y=dff_pct['Below_EMA50'],
-                name='Percentage of Members with Px < 50 Day Exponential Moving Average',
-                line=dict(width=2, color='#e74c3c'),
-                mode='lines'
-            ))
+        # if dff_pct['Below_EMA50'].notna().any():
+        #     fig_below.add_trace(go.Scatter(
+        #         x=dff_pct['Date'],
+        #         y=dff_pct['Below_EMA50'],
+        #         name='Percentage of Members with Px < 50 Day Exponential Moving Average',
+        #         line=dict(width=2, color='#e74c3c'),
+        #         mode='lines'
+        #     ))
         
-        if dff_pct['Below_EMA100'].notna().any():
-            fig_below.add_trace(go.Scatter(
-                x=dff_pct['Date'],
-                y=dff_pct['Below_EMA100'],
-                name='Percentage of Members with Px < 100 Day Exponential Moving Average',
-                line=dict(width=2.5, color='#c0392b'),
-                mode='lines'
-            ))
+        # if dff_pct['Below_EMA100'].notna().any():
+        #     fig_below.add_trace(go.Scatter(
+        #         x=dff_pct['Date'],
+        #         y=dff_pct['Below_EMA100'],
+        #         name='Percentage of Members with Px < 100 Day Exponential Moving Average',
+        #         line=dict(width=2.5, color='#c0392b'),
+        #         mode='lines'
+        #     ))
         
-        if dff_pct['Below_EMA200'].notna().any():
-            fig_below.add_trace(go.Scatter(
-                x=dff_pct['Date'],
-                y=dff_pct['Below_EMA200'],
-                name='Percentage of Members with Px < 200 Day Exponential Moving Average',
-                line=dict(width=3, color='#a93226'),
-                mode='lines'
-            ))
+        # if dff_pct['Below_EMA200'].notna().any():
+        #     fig_below.add_trace(go.Scatter(
+        #         x=dff_pct['Date'],
+        #         y=dff_pct['Below_EMA200'],
+        #         name='Percentage of Members with Px < 200 Day Exponential Moving Average',
+        #         line=dict(width=3, color='#a93226'),
+        #         mode='lines'
+        #     ))
         
-        if rangebreaks:
-            fig_below.update_xaxes(rangebreaks=rangebreaks)
+        # if rangebreaks:
+        #     fig_below.update_xaxes(rangebreaks=rangebreaks)
         
-        fig_below.update_layout(
-            height=400,
-            template='plotly_dark',
-            hovermode='x unified',
-            legend=dict(
-                orientation='h',
-                yanchor='bottom',
-                y=1.02,
-                xanchor='center',
-                x=0.5
-            ),
-            yaxis=dict(
-                title='Below Exponential Moving Averages',
-                range=[0, 100]
-            ),
-            xaxis_title='Date',
-            margin=dict(l=10, r=10, t=60, b=10)
-        )
+        # fig_below.update_layout(
+        #     height=400,
+        #     template='plotly_dark',
+        #     hovermode='x unified',
+        #     legend=dict(
+        #         orientation='h',
+        #         yanchor='bottom',
+        #         y=1.02,
+        #         xanchor='center',
+        #         x=0.5
+        #     ),
+        #     yaxis=dict(
+        #         title='Below Exponential Moving Averages',
+        #         range=[0, 100]
+        #     ),
+        #     xaxis_title='Date',
+        #     margin=dict(l=10, r=10, t=60, b=10)
+        # )
         
-        st.plotly_chart(fig_below, use_container_width=True, config={'displayModeBar': True})
+        # st.plotly_chart(fig_below, use_container_width=True, config={'displayModeBar': True})
     
     # Tab 2: New Highs & Lows with 4 collapsible panels
     with tab2:
