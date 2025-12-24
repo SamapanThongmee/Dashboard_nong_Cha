@@ -309,7 +309,7 @@ with st.expander("📈 SET Index", expanded=True):
 st.markdown("---")
 with st.expander("📊 Market Breadth Analysis", expanded=True):
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📊 Exponential Moving Averages", 
+        "📊 Simple Moving Averages", 
         "📈 New Highs & Lows", 
         "📉 Modified New High & New Lows",
         "📊 Double Moving Averages",
