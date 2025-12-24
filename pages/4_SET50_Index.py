@@ -109,12 +109,6 @@ def parse_set50_data(df: pd.DataFrame) -> pd.DataFrame:
     df['Above_EMA100'] = _clean_numeric_series(df.iloc[:, 8])
     df['Above_EMA200'] = _clean_numeric_series(df.iloc[:, 9])
 
-    # df['Below_EMA10']  = _clean_numeric_series(df.iloc[:, 10])
-    # df['Below_EMA20']  = _clean_numeric_series(df.iloc[:, 11])
-    # df['Below_EMA50']  = _clean_numeric_series(df.iloc[:, 12])
-    # df['Below_EMA100'] = _clean_numeric_series(df.iloc[:, 13])
-    # df['Below_EMA200'] = _clean_numeric_series(df.iloc[:, 14])
-
     df['NH20']  = _clean_numeric_series(df.iloc[:, 15])
     df['NH65']  = _clean_numeric_series(df.iloc[:, 16])
     df['NH130'] = _clean_numeric_series(df.iloc[:, 17])
@@ -132,7 +126,6 @@ def parse_set50_data(df: pd.DataFrame) -> pd.DataFrame:
     keep = [
         'Date', 'Open', 'High', 'Low', 'Close',
         'Above_EMA10','Above_EMA20','Above_EMA50','Above_EMA100','Above_EMA200',
-        # 'Below_EMA10','Below_EMA20','Below_EMA50','Below_EMA100','Below_EMA200',
         'NH20','NH65','NH130','NH260',
         'NL20','NL65','NL130','NL260',
         'Percentage_Above_Both', 'Percentage_Below_Both'
@@ -168,15 +161,19 @@ with col3:
 # -------------------------
 # Date Filtering
 # -------------------------
+st.markdown("---")
 end_date = df['Date'].max()
 start_date = max(df['Date'].min(), end_date - timedelta(days=30 * months))
 dff = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)].copy()
 
+st.write(f"Showing: **{start_date.date()} → {end_date.date()}** ({len(dff)} data points)")
+
 rangebreaks = make_rangebreaks(dff['Date'])
 
 # -------------------------
-# Panel 1: SET50 Candlestick
+# PANEL 1: SET50 Candlestick
 # -------------------------
+st.markdown("---")
 with st.expander("📈 SET50 Index", expanded=True):
     fig = go.Figure(go.Candlestick(
         x=dff['Date'],
@@ -194,367 +191,323 @@ with st.expander("📈 SET50 Index", expanded=True):
         template='plotly_dark',
         xaxis_rangeslider_visible=False,
         yaxis_title='SET50 Index',
-        hovermode='x unified'
+        xaxis_title='Date',
+        hovermode='x unified',
+        margin=dict(l=10, r=10, t=40, b=10)
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
 
 # -------------------------
-# Second Panel: Market Breadth Analysis
+# PANEL 2: New Highs & Lows
+# -------------------------
+st.markdown("---")
+with st.expander("📈 New Highs & Lows", expanded=True):
+    
+    # Panel 1: NH20 & NL20
+    show_nh_nl_4w = st.checkbox("📊 New High & New Low 4 Weeks", value=True, key="show_nh_nl_4w")
+    if show_nh_nl_4w:
+        fig_nh_nl_4w = go.Figure()
+
+        # Bars
+        fig_nh_nl_4w.add_bar(
+            x=dff['Date'], y=dff['NH20'],
+            name='Number of Members with New 4 Week Highs (Bar)',
+            marker_color='rgba(0,255,0,0.3)'
+        )
+        fig_nh_nl_4w.add_bar(
+            x=dff['Date'], y=-dff['NL20'],
+            name='Number of Members with New 4 Week Lows (Bar)',
+            marker_color='rgba(255,107,107,0.3)'
+        )
+
+        # Lines
+        fig_nh_nl_4w.add_trace(go.Scatter(
+            x=dff['Date'], y=dff['NH20'],
+            mode='lines',
+            name='Number of Members with New 4 Week Highs (Line)',
+            line=dict(color='rgb(0,255,0)', width=2)
+        ))
+        fig_nh_nl_4w.add_trace(go.Scatter(
+            x=dff['Date'], y=dff['NL20'],
+            mode='lines',
+            name='Number of Members with New 4 Week Lows (Line)',
+            line=dict(color='rgb(255,107,107)', width=2)
+        ))
+
+        if rangebreaks:
+            fig_nh_nl_4w.update_xaxes(rangebreaks=rangebreaks)
+
+        fig_nh_nl_4w.update_layout(
+            height=400,
+            template='plotly_dark',
+            hovermode='x unified',
+            barmode='overlay',
+            yaxis=dict(
+                title='Number of Members with New Highs & New Lows (4 Weeks)',
+                range=[-50, 50],
+                zeroline=True,
+                zerolinecolor='rgba(255,255,255,0.4)'
+            ),
+            xaxis_title='Date',
+            legend=dict(
+                orientation='h',
+                yanchor='bottom',
+                y=1.02,
+                xanchor='right',
+                x=1
+            ),
+            margin=dict(l=10, r=10, t=40, b=10)
+        )
+        st.plotly_chart(fig_nh_nl_4w, use_container_width=True, config={'displayModeBar': True})
+        st.markdown("---")
+
+    # Panel 2: NH65 & NL65
+    show_nh_nl_13w = st.checkbox("📊 New High & New Low 13 Weeks", value=True, key="show_nh_nl_13w")
+    if show_nh_nl_13w:
+        fig_nh_nl_13w = go.Figure()
+
+        # Bars
+        fig_nh_nl_13w.add_bar(
+            x=dff['Date'], y=dff['NH65'],
+            name='Number of Members with New 13 Week Highs (Bar)',
+            marker_color='rgba(38,166,154,0.3)'
+        )
+        fig_nh_nl_13w.add_bar(
+            x=dff['Date'], y=-dff['NL65'],
+            name='Number of Members with New 13 Week Lows (Bar)',
+            marker_color='rgba(239,83,80,0.3)'
+        )
+
+        # Lines
+        fig_nh_nl_13w.add_trace(go.Scatter(
+            x=dff['Date'], y=dff['NH65'],
+            mode='lines',
+            name='Number of Members with New 13 Week Highs (Line)',
+            line=dict(color='rgb(38,166,154)', width=2)
+        ))
+        fig_nh_nl_13w.add_trace(go.Scatter(
+            x=dff['Date'], y=dff['NL65'],
+            mode='lines',
+            name='Number of Members with New 13 Week Lows (Line)',
+            line=dict(color='rgb(239,83,80)', width=2)
+        ))
+
+        if rangebreaks:
+            fig_nh_nl_13w.update_xaxes(rangebreaks=rangebreaks)
+
+        fig_nh_nl_13w.update_layout(
+            height=400,
+            template='plotly_dark',
+            hovermode='x unified',
+            barmode='overlay',
+            yaxis=dict(
+                title='Number of Members with New Highs & New Lows (13 Weeks)',
+                range=[-50, 50],
+                zeroline=True,
+                zerolinecolor='rgba(255,255,255,0.4)'
+            ),
+            xaxis_title='Date',
+            legend=dict(
+                orientation='h',
+                yanchor='bottom',
+                y=1.02,
+                xanchor='right',
+                x=1
+            ),
+            margin=dict(l=10, r=10, t=40, b=10)
+        )
+        st.plotly_chart(fig_nh_nl_13w, use_container_width=True, config={'displayModeBar': True})
+        st.markdown("---")
+
+    # Panel 3: NH130 & NL130
+    show_nh_nl_26w = st.checkbox("📊 New High & New Low 26 Weeks", value=True, key="show_nh_nl_26w")
+    if show_nh_nl_26w:
+        fig_nh_nl_26w = go.Figure()
+
+        # Bars
+        fig_nh_nl_26w.add_bar(
+            x=dff['Date'], y=dff['NH130'],
+            name='Number of Members with New 26 Week Highs (Bar)',
+            marker_color='rgba(46,204,113,0.3)'
+        )
+        fig_nh_nl_26w.add_bar(
+            x=dff['Date'], y=-dff['NL130'],
+            name='Number of Members with New 26 Week Lows (Bar)',
+            marker_color='rgba(231,76,60,0.3)'
+        )
+
+        # Lines
+        fig_nh_nl_26w.add_trace(go.Scatter(
+            x=dff['Date'], y=dff['NH130'],
+            mode='lines',
+            name='Number of Members with New 26 Week Highs (Line)',
+            line=dict(color='rgb(46,204,113)', width=2)
+        ))
+        fig_nh_nl_26w.add_trace(go.Scatter(
+            x=dff['Date'], y=dff['NL130'],
+            mode='lines',
+            name='Number of Members with New 26 Week Lows (Line)',
+            line=dict(color='rgb(231,76,60)', width=2)
+        ))
+
+        if rangebreaks:
+            fig_nh_nl_26w.update_xaxes(rangebreaks=rangebreaks)
+
+        fig_nh_nl_26w.update_layout(
+            height=400,
+            template='plotly_dark',
+            hovermode='x unified',
+            barmode='overlay',
+            yaxis=dict(
+                title='Number of Members with New Highs & New Lows (26 Weeks)',
+                range=[-50, 50],
+                zeroline=True,
+                zerolinecolor='rgba(255,255,255,0.4)'
+            ),
+            xaxis_title='Date',
+            legend=dict(
+                orientation='h',
+                yanchor='bottom',
+                y=1.02,
+                xanchor='right',
+                x=1
+            ),
+            margin=dict(l=10, r=10, t=40, b=10)
+        )
+        st.plotly_chart(fig_nh_nl_26w, use_container_width=True, config={'displayModeBar': True})
+        st.markdown("---")
+
+    # Panel 4: NH260 & NL260
+    show_nh_nl_52w = st.checkbox("📊 New High & New Low 52 Weeks", value=True, key="show_nh_nl_52w")
+    if show_nh_nl_52w:
+        fig_nh_nl_52w = go.Figure()
+
+        # Bars
+        fig_nh_nl_52w.add_bar(
+            x=dff['Date'], y=dff['NH260'],
+            name='Number of Members with New 52 Week Highs (Bar)',
+            marker_color='rgba(39,174,96,0.3)'
+        )
+        fig_nh_nl_52w.add_bar(
+            x=dff['Date'], y=-dff['NL260'],
+            name='Number of Members with New 52 Week Lows (Bar)',
+            marker_color='rgba(192,57,43,0.3)'
+        )
+
+        # Lines
+        fig_nh_nl_52w.add_trace(go.Scatter(
+            x=dff['Date'], y=dff['NH260'],
+            mode='lines',
+            name='Number of Members with New 52 Week Highs (Line)',
+            line=dict(color='rgb(39,174,96)', width=2)
+        ))
+        fig_nh_nl_52w.add_trace(go.Scatter(
+            x=dff['Date'], y=dff['NL260'],
+            mode='lines',
+            name='Number of Members with New 52 Week Lows (Line)',
+            line=dict(color='rgb(192,57,43)', width=2)
+        ))
+
+        if rangebreaks:
+            fig_nh_nl_52w.update_xaxes(rangebreaks=rangebreaks)
+
+        fig_nh_nl_52w.update_layout(
+            height=400,
+            template='plotly_dark',
+            hovermode='x unified',
+            barmode='overlay',
+            yaxis=dict(
+                title='Number of Members with New Highs & New Lows (52 Weeks)',
+                range=[-50, 50],
+                zeroline=True,
+                zerolinecolor='rgba(255,255,255,0.4)'
+            ),
+            xaxis_title='Date',
+            legend=dict(
+                orientation='h',
+                yanchor='bottom',
+                y=1.02,
+                xanchor='right',
+                x=1
+            ),
+            margin=dict(l=10, r=10, t=40, b=10)
+        )
+        st.plotly_chart(fig_nh_nl_52w, use_container_width=True, config={'displayModeBar': True})
+
+# -------------------------
+# PANEL 3: Market Breadth Analysis (without New Highs & Lows tab)
 # -------------------------
 st.markdown("---")
 with st.expander("📊 Market Breadth Analysis", expanded=True):
 
-    tab1, tab2, tab3 = st.tabs([
+    tab1, tab2 = st.tabs([
         "📊 Simple Moving Averages", 
-        "📈 New Highs & Lows",
         "📊 Double Simple Moving Averages"
     ])
 
     # =====================================================
-    # TAB 1: Moving Averages (Above + Below)
+    # TAB 1: Moving Averages
     # =====================================================
     with tab1:
-            dff_pct = dff.copy()
+        dff_pct = dff.copy()
 
-            for c in [
-                'Above_EMA10','Above_EMA20','Above_EMA50','Above_EMA100','Above_EMA200',
-                # 'Below_EMA10','Below_EMA20','Below_EMA50','Below_EMA100','Below_EMA200'
-            ]:
-                dff_pct[c] = dff_pct[c] * 100
+        for c in ['Above_EMA10','Above_EMA20','Above_EMA50','Above_EMA100','Above_EMA200']:
+            dff_pct[c] = dff_pct[c] * 100
 
-            # ---------- TOP PANEL: Above Moving Averages ----------
-            fig_above = go.Figure()
+        # ---------- Moving Averages ----------
+        fig_above = go.Figure()
 
-            # Above EMA (Green)
-            fig_above.add_trace(go.Scatter(
-                x=dff_pct['Date'], y=dff_pct['Above_EMA10']/100,
-                name='Number of Members with Px > 10 Day SMA',
-                line=dict(width=1, color='#00ff00')
-            ))
-            fig_above.add_trace(go.Scatter(
-                x=dff_pct['Date'], y=dff_pct['Above_EMA20']/100,
-                name='Number of Members with Px > 20 Day SMA',
-                line=dict(width=1.5, color='#26a69a')
-            ))
-            fig_above.add_trace(go.Scatter(
-                x=dff_pct['Date'], y=dff_pct['Above_EMA50']/100,
-                name='Number of Members with Px > 50 Day SMA',
-                line=dict(width=2, color='#2ecc71')
-            ))
-            fig_above.add_trace(go.Scatter(
-                x=dff_pct['Date'], y=dff_pct['Above_EMA100']/100,
-                name='Number of Members with Px > 100 Day SMA',
-                line=dict(width=2.5, color='#27ae60')
-            ))
-            fig_above.add_trace(go.Scatter(
-                x=dff_pct['Date'], y=dff_pct['Above_EMA200']/100,
-                name='Number of Members with Px > 200 Day SMA',
-                line=dict(width=3, color='#1e8449')
-            ))
+        # Above EMA (Green)
+        fig_above.add_trace(go.Scatter(
+            x=dff_pct['Date'], y=dff_pct['Above_EMA10']/100,
+            name='Number of Members with Px > 10 Day SMA',
+            line=dict(width=1, color='#00ff00')
+        ))
+        fig_above.add_trace(go.Scatter(
+            x=dff_pct['Date'], y=dff_pct['Above_EMA20']/100,
+            name='Number of Members with Px > 20 Day SMA',
+            line=dict(width=1.5, color='#26a69a')
+        ))
+        fig_above.add_trace(go.Scatter(
+            x=dff_pct['Date'], y=dff_pct['Above_EMA50']/100,
+            name='Number of Members with Px > 50 Day SMA',
+            line=dict(width=2, color='#2ecc71')
+        ))
+        fig_above.add_trace(go.Scatter(
+            x=dff_pct['Date'], y=dff_pct['Above_EMA100']/100,
+            name='Number of Members with Px > 100 Day SMA',
+            line=dict(width=2.5, color='#27ae60')
+        ))
+        fig_above.add_trace(go.Scatter(
+            x=dff_pct['Date'], y=dff_pct['Above_EMA200']/100,
+            name='Number of Members with Px > 200 Day SMA',
+            line=dict(width=3, color='#1e8449')
+        ))
 
-            if rangebreaks:
-                fig_above.update_xaxes(rangebreaks=rangebreaks)
+        if rangebreaks:
+            fig_above.update_xaxes(rangebreaks=rangebreaks)
 
-            fig_above.update_layout(
-                height=400,
-                template='plotly_dark',
-                hovermode='x unified',
-                yaxis=dict(range=[0, 50], title='Number of Members'),
-                xaxis_title='Date',
-                legend=dict(
-                    orientation='h',
-                    yanchor='bottom', y=1.02,
-                    xanchor='center', x=0.5
-                ),
-                margin=dict(l=10, r=10, t=60, b=10)
-            )
+        fig_above.update_layout(
+            height=400,
+            template='plotly_dark',
+            hovermode='x unified',
+            yaxis=dict(range=[0, 50], title='Number of Members'),
+            xaxis_title='Date',
+            legend=dict(
+                orientation='h',
+                yanchor='bottom', y=1.02,
+                xanchor='center', x=0.5
+            ),
+            margin=dict(l=10, r=10, t=60, b=10)
+        )
 
-            st.plotly_chart(fig_above, use_container_width=True, config={'displayModeBar': True})
-            
-            # st.markdown("---")
-
-            # # ---------- BOTTOM PANEL: Below Moving Averages ----------
-            # fig_below = go.Figure()
-
-            # # Below EMA (Red)
-            # fig_below.add_trace(go.Scatter(
-            #     x=dff_pct['Date'], y=dff_pct['Below_EMA10']/100,
-            #     name='Number of Members with Px < 10 Day EMA',
-            #     line=dict(width=1, color='#ff6b6b')
-            # ))
-            # fig_below.add_trace(go.Scatter(
-            #     x=dff_pct['Date'], y=dff_pct['Below_EMA20']/100,
-            #     name='Number of Members with Px < 20 Day EMA',
-            #     line=dict(width=1.5, color='#ef5350')
-            # ))
-            # fig_below.add_trace(go.Scatter(
-            #     x=dff_pct['Date'], y=dff_pct['Below_EMA50']/100,
-            #     name='Number of Members with Px < 50 Day EMA',
-            #     line=dict(width=2, color='#e74c3c')
-            # ))
-            # fig_below.add_trace(go.Scatter(
-            #     x=dff_pct['Date'], y=dff_pct['Below_EMA100']/100,
-            #     name='Number of Members with Px < 100 Day EMA',
-            #     line=dict(width=2.5, color='#c0392b')
-            # ))
-            # fig_below.add_trace(go.Scatter(
-            #     x=dff_pct['Date'], y=dff_pct['Below_EMA200']/100,
-            #     name='Number of Members with Px < 200 Day EMA',
-            #     line=dict(width=3, color='#a93226')
-            # ))
-
-            # if rangebreaks:
-            #     fig_below.update_xaxes(rangebreaks=rangebreaks)
-
-            # fig_below.update_layout(
-            #     height=400,
-            #     template='plotly_dark',
-            #     hovermode='x unified',
-            #     yaxis=dict(range=[0, 50], title='Number of Members'),
-            #     xaxis_title='Date',
-            #     legend=dict(
-            #         orientation='h',
-            #         yanchor='bottom', y=1.02,
-            #         xanchor='center', x=0.5
-            #     ),
-            #     margin=dict(l=10, r=10, t=60, b=10)
-            # )
-
-            # st.plotly_chart(fig_below, use_container_width=True, config={'displayModeBar': True})
-
-    # =====================================================
-    # TAB 2: New Highs & Lows (4 Panels)
-    # =====================================================
-    with tab2:
-
-        # Panel 1: NH20 & NL20
-        fig_nh_nl_4w = st.checkbox("📊 New High & New Low 4 Weeks", value=True, key="fig_nh_nl_4w")
-        if fig_nh_nl_4w:
-            fig_nh_nl_4w = go.Figure()
-
-            # Bars
-            fig_nh_nl_4w.add_bar(
-                x=dff['Date'], y=dff['NH20'],
-                name='Number of Members with New 4 Week Highs (Bar)',
-                marker_color='rgba(0,255,0,0.3)'
-            )
-            fig_nh_nl_4w.add_bar(
-                x=dff['Date'], y=-dff['NL20'],
-                name='Number of Members with New 4 Week Lows (Bar)',
-                marker_color='rgba(255,107,107,0.3)'
-            )
-
-            # Lines
-            fig_nh_nl_4w.add_trace(go.Scatter(
-                x=dff['Date'], y=dff['NH20'],
-                mode='lines',
-                name='Number of Members with New 4 Week Highs (Line)',
-                line=dict(color='rgb(0,255,0)', width=2)
-            ))
-            fig_nh_nl_4w.add_trace(go.Scatter(
-                x=dff['Date'], y=dff['NL20'],
-                mode='lines',
-                name='Number of Members with New 4 Week Lows (Line)',
-                line=dict(color='rgb(255,107,107)', width=2)
-            ))
-
-            if rangebreaks:
-                fig_nh_nl_4w.update_xaxes(rangebreaks=rangebreaks)
-
-            fig_nh_nl_4w.update_layout(
-                height=400,
-                template='plotly_dark',
-                hovermode='x unified',
-                barmode='overlay',
-                yaxis=dict(
-                    title='Number of Members with New Highs & New Lows (4 Weeks)',
-                    range=[-50, 50],
-                    zeroline=True,
-                    zerolinecolor='rgba(255,255,255,0.4)'
-                ),
-                legend=dict(
-                    orientation='h',
-                    yanchor='bottom',
-                    y=1.02,
-                    xanchor='center',
-                    x=0.5
-                )
-            )
-            st.plotly_chart(fig_nh_nl_4w, use_container_width=True, config={'displayModeBar': True})
-            st.markdown("---")
-
-        # Panel 2: NH65 & NL65
-        fig_nh_nl_13w = st.checkbox("📊 New High & New Low 13 Weeks", value=True, key="fig_nh_nl_13w")
-        if fig_nh_nl_13w:
-            fig_nh_nl_13w = go.Figure()
-
-            # Bars
-            fig_nh_nl_13w.add_bar(
-                x=dff['Date'], y=dff['NH65'],
-                name='Number of Members with New 13 Week Highs (Bar)',
-                marker_color='rgba(38,166,154,0.3)'
-            )
-            fig_nh_nl_13w.add_bar(
-                x=dff['Date'], y=-dff['NL65'],
-                name='Number of Members with New 13 Week Lows (Bar)',
-                marker_color='rgba(239,83,80,0.3)'
-            )
-
-            # Lines
-            fig_nh_nl_13w.add_trace(go.Scatter(
-                x=dff['Date'], y=dff['NH65'],
-                mode='lines',
-                name='Number of Members with New 13 Week Highs (Line)',
-                line=dict(color='rgb(38,166,154)', width=2)
-            ))
-            fig_nh_nl_13w.add_trace(go.Scatter(
-                x=dff['Date'], y=dff['NL65'],
-                mode='lines',
-                name='Number of Members with New 13 Week Lows (Line)',
-                line=dict(color='rgb(239,83,80)', width=2)
-            ))
-
-            if rangebreaks:
-                fig_nh_nl_13w.update_xaxes(rangebreaks=rangebreaks)
-
-            fig_nh_nl_13w.update_layout(
-                height=400,
-                template='plotly_dark',
-                hovermode='x unified',
-                barmode='overlay',
-                yaxis=dict(
-                    title='Number of Members with New Highs & New Lows (13 Weeks)',
-                    range=[-50, 50],
-                    zeroline=True,
-                    zerolinecolor='rgba(255,255,255,0.4)'
-                ),
-                legend=dict(
-                    orientation='h',
-                    yanchor='bottom',
-                    y=1.02,
-                    xanchor='center',
-                    x=0.5
-                )
-            )
-            st.plotly_chart(fig_nh_nl_13w, use_container_width=True, config={'displayModeBar': True})
-            st.markdown("---")
-
-        # Panel 3: NH130 & NL130
-        fig_nh_nl_26w = st.checkbox("📊 New High & New Low 26 Weeks", value=True, key="fig_nh_nl_26w")
-        if fig_nh_nl_26w:
-            fig_nh_nl_26w = go.Figure()
-
-            # Bars
-            fig_nh_nl_26w.add_bar(
-                x=dff['Date'], y=dff['NH130'],
-                name='Number of Members with New 26 Week Highs (Bar)',
-                marker_color='rgba(46,204,113,0.3)'
-            )
-            fig_nh_nl_26w.add_bar(
-                x=dff['Date'], y=-dff['NL130'],
-                name='Number of Members with New 26 Week Lows (Bar)',
-                marker_color='rgba(231,76,60,0.3)'
-            )
-
-            # Lines
-            fig_nh_nl_26w.add_trace(go.Scatter(
-                x=dff['Date'], y=dff['NH130'],
-                mode='lines',
-                name='Number of Members with New 26 Week Highs (Line)',
-                line=dict(color='rgb(46,204,113)', width=2)
-            ))
-            fig_nh_nl_26w.add_trace(go.Scatter(
-                x=dff['Date'], y=dff['NL130'],
-                mode='lines',
-                name='Number of Members with New 26 Week Lows (Line)',
-                line=dict(color='rgb(231,76,60)', width=2)
-            ))
-
-            if rangebreaks:
-                fig_nh_nl_26w.update_xaxes(rangebreaks=rangebreaks)
-
-            fig_nh_nl_26w.update_layout(
-                height=400,
-                template='plotly_dark',
-                hovermode='x unified',
-                barmode='overlay',
-                yaxis=dict(
-                    title='Number of Members with New Highs & New Lows (26 Weeks)',
-                    range=[-50, 50],
-                    zeroline=True,
-                    zerolinecolor='rgba(255,255,255,0.4)'
-                ),
-                legend=dict(
-                    orientation='h',
-                    yanchor='bottom',
-                    y=1.02,
-                    xanchor='center',
-                    x=0.5
-                )
-            )
-            st.plotly_chart(fig_nh_nl_26w, use_container_width=True, config={'displayModeBar': True})
-            st.markdown("---")
-
-        # Panel 4: NH260 & NL260
-        fig_nh_nl_52w = st.checkbox("📊 New High & New Low 52 Weeks", value=True, key="fig_nh_nl_52w")
-        if fig_nh_nl_52w:
-            fig_nh_nl_52w = go.Figure()
-
-            # Bars
-            fig_nh_nl_52w.add_bar(
-                x=dff['Date'], y=dff['NH260'],
-                name='Number of Members with New 52 Week Highs (Bar)',
-                marker_color='rgba(39,174,96,0.3)'
-            )
-            fig_nh_nl_52w.add_bar(
-                x=dff['Date'], y=-dff['NL260'],
-                name='Number of Members with New 52 Week Lows (Bar)',
-                marker_color='rgba(192,57,43,0.3)'
-            )
-
-            # Lines
-            fig_nh_nl_52w.add_trace(go.Scatter(
-                x=dff['Date'], y=dff['NH260'],
-                mode='lines',
-                name='Number of Members with New 52 Week Highs (Line)',
-                line=dict(color='rgb(39,174,96)', width=2)
-            ))
-            fig_nh_nl_52w.add_trace(go.Scatter(
-                x=dff['Date'], y=dff['NL260'],
-                mode='lines',
-                name='Number of Members with New 52 Week Lows (Line)',
-                line=dict(color='rgb(192,57,43)', width=2)
-            ))
-
-            if rangebreaks:
-                fig_nh_nl_52w.update_xaxes(rangebreaks=rangebreaks)
-
-            fig_nh_nl_52w.update_layout(
-                height=400,
-                template='plotly_dark',
-                hovermode='x unified',
-                barmode='overlay',
-                yaxis=dict(
-                    title='Number of Members with New Highs & New Lows (52 Weeks)',
-                    range=[-50, 50],
-                    zeroline=True,
-                    zerolinecolor='rgba(255,255,255,0.4)'
-                ),
-                legend=dict(
-                    orientation='h',
-                    yanchor='bottom',
-                    y=1.02,
-                    xanchor='center',
-                    x=0.5
-                )
-            )
-            st.plotly_chart(fig_nh_nl_52w, use_container_width=True, config={'displayModeBar': True})
+        st.plotly_chart(fig_above, use_container_width=True, config={'displayModeBar': True})
     
     # =====================================================
-    # TAB 3: Double Moving Averages
+    # TAB 2: Double Moving Averages
     # =====================================================
-    with tab3:
+    with tab2:
         fig_dma = go.Figure()
         
         # Number Above Both (Green line)
@@ -601,4 +554,4 @@ with st.expander("📊 Market Breadth Analysis", expanded=True):
             
 # Footer
 st.markdown("---")
-st.caption(f"📊 SET50 Index Dashboard | {len(dff)} data points")
+st.caption(f"📊 SET50 Index Dashboard | {len(dff)} data points | {dff['Date'].min().date()} to {dff['Date'].max().date()}")
