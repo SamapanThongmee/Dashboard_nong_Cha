@@ -5,3 +5,4 @@ requests
 pytz
 matplotlib
 streamlit-authenticator
+streamlit-aggrid
