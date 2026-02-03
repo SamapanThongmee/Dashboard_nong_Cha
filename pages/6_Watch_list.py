@@ -3,10 +3,9 @@
 Watchlist Page (Read-only Table + Filters)
 Data source: Google Sheet (WATCHLIST) gid=1057696914
 
-Excel-like Freeze Column:
-- Pin "Symbol" column on the left using AgGrid (streamlit-aggrid)
-Install:
-    pip install streamlit-aggrid
+Improvements:
+1) Auto-adjust column widths + readable headers (no double click)
+2) Freeze ONLY "Symbol" (pin left)
 """
 
 import streamlit as st
@@ -15,8 +14,8 @@ import requests
 from io import StringIO
 import pytz
 
-# ✅ AgGrid for pinned (frozen) columns
 from st_aggrid import AgGrid, GridOptionsBuilder
+from st_aggrid.shared import JsCode  # ✅ needed for auto-sizing
 
 # =====================================================
 # AUTHENTICATION CHECK - MUST BE AT THE TOP
@@ -56,23 +55,19 @@ def _looks_like_html(text: str) -> bool:
     )
 
 def _try_parse_datetime_series(s: pd.Series) -> pd.Series:
-    # Attempt to parse datetime; if fails mostly, return original series
     dt = pd.to_datetime(s, errors="coerce", infer_datetime_format=True)
     if dt.notna().sum() >= max(3, int(len(s) * 0.6)):
         return dt
     return s
 
 def _normalize_df(df: pd.DataFrame) -> pd.DataFrame:
-    # Strip column names
-    df.columns = [str(c).strip() for c in df.columns]
-    # Drop empty columns
+    df.columns = [str(c).strip() for c in df.columns]  # ✅ trim headers
     df = df.dropna(axis=1, how="all")
-    # Strip string cells
+
     for c in df.columns:
         if df[c].dtype == object:
             df[c] = df[c].astype(str).str.strip()
             df[c] = df[c].replace({"nan": "", "None": "", "null": ""})
-            # Try parse dates for object columns
             df[c] = _try_parse_datetime_series(df[c])
     return df
 
@@ -108,20 +103,11 @@ def apply_global_search(df: pd.DataFrame, q: str) -> pd.DataFrame:
     return df[mask]
 
 def build_filters(df: pd.DataFrame):
-    """
-    Build automatic filters:
-    - For object/categorical columns with <= 50 unique values -> multiselect
-    - For numeric -> range slider
-    - For datetime -> date range
-    Returns: filtered df
-    """
     st.sidebar.header("Filters")
 
-    # Global search
     q = st.sidebar.text_input("Search (all columns)", value="", placeholder="e.g., PTT, banking, breakout...")
     out = apply_global_search(df, q)
 
-    # Choose columns to filter (optional)
     with st.sidebar.expander("Column Filters", expanded=True):
         cols_to_filter = st.multiselect(
             "Select columns to filter",
@@ -135,7 +121,6 @@ def build_filters(df: pd.DataFrame):
 
         s = out[c]
 
-        # Datetime filter
         if pd.api.types.is_datetime64_any_dtype(s):
             min_dt = s.min()
             max_dt = s.max()
@@ -155,7 +140,6 @@ def build_filters(df: pd.DataFrame):
             if d1 and d2:
                 out = out[(out[c].dt.date >= d1) & (out[c].dt.date <= d2)]
 
-        # Numeric filter
         elif pd.api.types.is_numeric_dtype(s):
             s2 = pd.to_numeric(s, errors="coerce")
             if s2.notna().sum() == 0:
@@ -167,7 +151,6 @@ def build_filters(df: pd.DataFrame):
             lo, hi = st.sidebar.slider(f"{c} (range)", mn, mx, (mn, mx))
             out = out[(s2 >= lo) & (s2 <= hi)]
 
-        # Categorical/text filter
         else:
             vals = pd.Series(s.astype(str)).replace({"nan": ""})
             uniq = sorted([v for v in vals.unique() if v != ""])
@@ -182,32 +165,67 @@ def build_filters(df: pd.DataFrame):
 
     return out, q, cols_to_filter
 
-def render_table_with_frozen_symbol(df_to_show: pd.DataFrame, height: int = 650):
-    """
-    Render table with Excel-like frozen column:
-    - Pins (freezes) 'Symbol' column on the left if it exists
-    """
+def _find_symbol_column(cols: list[str]) -> str | None:
+    # Case-insensitive exact match for "Symbol"
+    for c in cols:
+        if str(c).strip().lower() == "symbol":
+            return c
+    return None
+
+def render_aggrid(df_to_show: pd.DataFrame, height: int = 650):
+    cols = list(df_to_show.columns)
+    symbol_col = _find_symbol_column(cols)
+
+    if symbol_col is None:
+        st.warning("⚠️ Could not find column named 'Symbol'. Showing table without freezing.")
+        # If you want to debug:
+        # st.write(cols)
+
     gb = GridOptionsBuilder.from_dataframe(df_to_show)
 
-    # make it spreadsheet-friendly
-    gb.configure_default_column(resizable=True, sortable=True, filter=True)
+    # ✅ Make headers readable without manual resizing
+    gb.configure_default_column(
+        resizable=True,
+        sortable=True,
+        filter=True,
+        wrapHeaderText=True,     # wrap long header text
+        autoHeaderHeight=True,   # auto header row height
+        minWidth=120,            # prevent tiny columns
+    )
 
-    # ✅ Freeze "Symbol"
-    if "Symbol" in df_to_show.columns:
-        gb.configure_column("Symbol", pinned="left")
+    # ✅ Freeze ONLY Symbol
+    if symbol_col:
+        gb.configure_column(
+            symbol_col,
+            pinned="left",
+            width=140,
+            minWidth=140,
+            maxWidth=220,
+        )
 
-    # optional: nicer horizontal scroll behavior
-    gb.configure_grid_options(domLayout="normal")
+    gridOptions = gb.build()
 
-    grid_options = gb.build()
+    # ✅ Auto-size columns to content/header on first render
+    # Exclude pinned Symbol from auto-size so it stays stable
+    gridOptions["onFirstDataRendered"] = JsCode(f"""
+    function(params) {{
+        const ids = [];
+        params.columnApi.getAllColumns().forEach((col) => {{
+            const id = col.getId();
+            if ("{symbol_col}" && id === "{symbol_col}") return;
+            ids.push(id);
+        }});
+        params.columnApi.autoSizeColumns(ids, false);
+    }}
+    """)
 
     AgGrid(
         df_to_show,
-        gridOptions=grid_options,
+        gridOptions=gridOptions,
         height=height,
-        fit_columns_on_grid_load=False,
-        allow_unsafe_jscode=False,
-        theme="streamlit",  # keeps it close to Streamlit style
+        theme="streamlit",
+        allow_unsafe_jscode=True,     # ✅ required for autoSizeColumns
+        fit_columns_on_grid_load=False
     )
 
 # -------------------------
@@ -253,9 +271,9 @@ with top2:
     st.caption(f"Active filters: Search='{q}' | Columns={', '.join(cols_used) if cols_used else 'None'}")
 
 # -------------------------
-# Show table (Frozen "Symbol" column)
+# Show table (auto header sizing + freeze only Symbol)
 # -------------------------
-render_table_with_frozen_symbol(filtered, height=650)
+render_aggrid(filtered, height=650)
 
 # -------------------------
 # Optional: Export filtered table
