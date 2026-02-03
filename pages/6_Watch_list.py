@@ -2,14 +2,21 @@
 """
 Watchlist Page (Read-only Table + Filters)
 Data source: Google Sheet (WATCHLIST) gid=1057696914
+
+Excel-like Freeze Column:
+- Pin "Symbol" column on the left using AgGrid (streamlit-aggrid)
+Install:
+    pip install streamlit-aggrid
 """
 
 import streamlit as st
 import pandas as pd
 import requests
 from io import StringIO
-from datetime import datetime
 import pytz
+
+# ✅ AgGrid for pinned (frozen) columns
+from st_aggrid import AgGrid, GridOptionsBuilder
 
 # =====================================================
 # AUTHENTICATION CHECK - MUST BE AT THE TOP
@@ -96,7 +103,6 @@ def apply_global_search(df: pd.DataFrame, q: str) -> pd.DataFrame:
         return df
     mask = pd.Series(False, index=df.index)
     for c in df.columns:
-        # Convert to string for search
         col = df[c].astype(str).str.lower()
         mask = mask | col.str.contains(q, na=False)
     return df[mask]
@@ -128,6 +134,7 @@ def build_filters(df: pd.DataFrame):
             continue
 
         s = out[c]
+
         # Datetime filter
         if pd.api.types.is_datetime64_any_dtype(s):
             min_dt = s.min()
@@ -135,7 +142,6 @@ def build_filters(df: pd.DataFrame):
             if pd.isna(min_dt) or pd.isna(max_dt):
                 continue
 
-            # Convert to date for UI
             min_d = min_dt.date()
             max_d = max_dt.date()
             d1, d2 = st.sidebar.date_input(
@@ -144,8 +150,7 @@ def build_filters(df: pd.DataFrame):
                 min_value=min_d,
                 max_value=max_d,
             )
-            if isinstance(d1, tuple) or isinstance(d1, list):
-                # streamlit older behavior
+            if isinstance(d1, (tuple, list)):
                 d1, d2 = d1
             if d1 and d2:
                 out = out[(out[c].dt.date >= d1) & (out[c].dt.date <= d2)]
@@ -176,6 +181,34 @@ def build_filters(df: pd.DataFrame):
                     out = out[out[c].astype(str).str.contains(txt, case=False, na=False)]
 
     return out, q, cols_to_filter
+
+def render_table_with_frozen_symbol(df_to_show: pd.DataFrame, height: int = 650):
+    """
+    Render table with Excel-like frozen column:
+    - Pins (freezes) 'Symbol' column on the left if it exists
+    """
+    gb = GridOptionsBuilder.from_dataframe(df_to_show)
+
+    # make it spreadsheet-friendly
+    gb.configure_default_column(resizable=True, sortable=True, filter=True)
+
+    # ✅ Freeze "Symbol"
+    if "Symbol" in df_to_show.columns:
+        gb.configure_column("Symbol", pinned="left")
+
+    # optional: nicer horizontal scroll behavior
+    gb.configure_grid_options(domLayout="normal")
+
+    grid_options = gb.build()
+
+    AgGrid(
+        df_to_show,
+        gridOptions=grid_options,
+        height=height,
+        fit_columns_on_grid_load=False,
+        allow_unsafe_jscode=False,
+        theme="streamlit",  # keeps it close to Streamlit style
+    )
 
 # -------------------------
 # Load Data
@@ -219,14 +252,14 @@ with top1:
 with top2:
     st.caption(f"Active filters: Search='{q}' | Columns={', '.join(cols_used) if cols_used else 'None'}")
 
-# Show table
-st.dataframe(
-    filtered,
-    use_container_width=True,
-    hide_index=True,
-)
+# -------------------------
+# Show table (Frozen "Symbol" column)
+# -------------------------
+render_table_with_frozen_symbol(filtered, height=650)
 
+# -------------------------
 # Optional: Export filtered table
+# -------------------------
 st.download_button(
     "⬇️ Download filtered CSV",
     data=filtered.to_csv(index=False).encode("utf-8"),
